@@ -1,0 +1,22 @@
+# IntelliJ IDEA configs
+.idea/
+*.iml
+out/
+gen/
+
+# Build artifacts (nếu sau này dùng Maven/Gradle)
+target/
+build/
+
+# OS-generated files
+.DS_Store
+Thumbs.db
+
+# Local agent guidance / generated files
+AGENTS.md
+
+# Editor folders
+.vscode/
+
+# Java
+*.class

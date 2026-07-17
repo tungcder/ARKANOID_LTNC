@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AIAssistantCustomInstructionsStorage">
+    <option name="instructions">
+      <map>
+        <entry key="AIAssistant.General.ProjectPrompt">
+          <value>
+            <AIAssistantStoredInstruction>
+              <option name="actionId" value="AIAssistant.General.ProjectPrompt" />
+              <option name="content" value="# Coding Guidelines &#10;1. **Think Before Coding:** State assumptions explicitly. Present multiple approaches and trade-offs before implementation. Stop and ask if requirements are ambiguous.&#10;2. **Simplicity First:** Write the minimum code needed to solve the problem. No speculative features, no over-engineering.&#10;3. **Surgical Changes:** Touch only what you must. Do not refactor, format, or modify unrelated adjacent code. Clean up only the dead code created by your current changes.&#10;4. **Goal-Driven Execution:** Break down tasks into steps with clear, verifiable success criteria. Verify each step before proceeding." />
+            </AIAssistantStoredInstruction>
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+  <component name="GHAISettings">{}</component>
+  <component name="ProjectRootManager" version="2" languageLevel="JDK_25" default="true" project-jdk-name="25" project-jdk-type="JavaSDK">
+    <output url="file://$PROJECT_DIR$/out" />
+  </component>
+</project>

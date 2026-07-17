@@ -53,6 +53,10 @@ public class GamePanel extends JPanel implements KeyListener {
 
     private void updateGame() {
         paddle.update();
+        if (!ball.isLaunched()) {
+            ball.setX(paddle.getX() + paddle.getWidth() / 2 - ball.getWidth() / 2);
+            ball.setY(paddle.getY() - ball.getHeight());
+        }
         ball.update();
 
         // ball <-> paddle
@@ -78,6 +82,8 @@ public class GamePanel extends JPanel implements KeyListener {
             GameLogger.log("Ball lost. Resetting ball and paddle.");
             ball.resetPosition(GameBounds.WIDTH / 2 - 8, GameBounds.HEIGHT - 80);
             paddle.setX(GameBounds.WIDTH / 2 - paddle.getWidth() / 2);
+            ball.setX(paddle.getX() + paddle.getWidth() / 2 - ball.getWidth() / 2);
+            ball.setY(paddle.getY() - ball.getHeight());
         }
     }
 

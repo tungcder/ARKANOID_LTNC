@@ -50,6 +50,10 @@ public class Ball extends MovableObject {
         }
     }
 
+    public boolean isLaunched() {
+        return launched;
+    }
+
     public void onPaddleHit(Paddle p) {
         // reflect dy and modify dx based on hit position
         Rectangle pb = p.getBounds();

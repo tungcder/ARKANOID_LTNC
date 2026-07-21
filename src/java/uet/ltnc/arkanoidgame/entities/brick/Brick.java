@@ -1,4 +1,4 @@
-package uet.ltnc.arknoidgame.entities;
+package uet.ltnc.arkanoidgame.entities;
 
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;

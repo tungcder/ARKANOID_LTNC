@@ -1,4 +1,4 @@
-package uet.ltnc.arkanoidgame.entities;
+package uet.ltnc.arkanoidgame.entities.paddle;
 
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.input.KeyCode;

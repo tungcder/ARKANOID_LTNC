@@ -1,7 +1,6 @@
-package uet.ltnc.arkanoidgame.entities;
+package uet.ltnc.arkanoidgame.entities.brick;
 
 import javafx.scene.canvas.GraphicsContext;
-import uet.ltnc.arkanoidgame.entities.brick.Brick;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -1,7 +1,11 @@
-package uet.ltnc.arkanoidgame.entities;
+package uet.ltnc.arkanoidgame.entities.ball;
 
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
+
+import uet.ltnc.arkanoidgame.entities.paddle.Paddle;
+import uet.ltnc.arkanoidgame.entities.brick.Brick;
+import uet.ltnc.arkanoidgame.entities.brick.BrickGrid;
 
 public class Ball {
     private double x, y;

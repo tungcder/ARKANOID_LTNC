@@ -1,4 +1,4 @@
-package uet.ltnc.arknoidgame.utils;
+package uet.ltnc.arkanoidgame.utils;
 
 public class GameConstants {
     public static final int WIDTH = 800;

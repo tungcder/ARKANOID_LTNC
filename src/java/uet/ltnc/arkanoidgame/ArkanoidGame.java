@@ -1,10 +1,10 @@
-package uet.ltnc.arknoidgame;
+package uet.ltnc.arkanoidgame;
 
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
-import uet.oop.arkanoidgame.entities.*;
+import uet.ltnc.arkanoidgame.entities.*;
 
 public class ArkanoidGame extends Application {
 

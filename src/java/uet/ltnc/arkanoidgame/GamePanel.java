@@ -1,10 +1,12 @@
-package uet.ltnc.arknoidgame;
+package uet.ltnc.arkanoidgame;
 
 import javafx.animation.AnimationTimer;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
-import uet.oop.arkanoidgame.entities.*;
+import uet.ltnc.arkanoidgame.entities.ball.Ball;
+import uet.ltnc.arkanoidgame.entities.brick.BrickGrid;
+import uet.ltnc.arkanoidgame.entities.paddle.Paddle;
 
 public class GamePanel extends Canvas {
 

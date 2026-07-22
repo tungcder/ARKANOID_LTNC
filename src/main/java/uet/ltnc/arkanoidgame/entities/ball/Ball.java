@@ -8,8 +8,8 @@ import uet.ltnc.arkanoidgame.entities.brick.Brick;
 import uet.ltnc.arkanoidgame.entities.brick.BrickGrid;
 
 public class Ball {
-    private double x, y;
-    private double radius;
+    private double x, y;        // tọa độ góc trên quả bóng
+    private double radius;      // bán kính bóng
     private double dx = 3, dy = -3; // tốc độ ban đầu
 
     public Ball(double x, double y, double radius) {

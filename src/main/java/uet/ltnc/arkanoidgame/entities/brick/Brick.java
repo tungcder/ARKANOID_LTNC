@@ -23,8 +23,8 @@ public class Brick {
         this.destroyed = false;
     }
 /*
-ghi nhận số lầ bóng đập vào gạch
-trả về true kho gạch vỡ trong lần đập này
+ghi nhận số lần bóng đập vào gạch
+trả về true khi gạch vỡ trong lần đập này
  */
     public boolean hit() {
         if (destroyed || !isBreakable()) {

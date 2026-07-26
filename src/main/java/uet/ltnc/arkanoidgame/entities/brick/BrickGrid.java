@@ -16,7 +16,15 @@ public class BrickGrid {
             for (int col = 0; col < cols; col++) {
                 double x = col * (brickWidth + 5) + 40;
                 double y = row * (brickHeight + 5) + 50;
-                bricks.add(new Brick(x, y, brickWidth, brickHeight));
+                Brick brick = BrickFactory.createBrick(
+                        BrickFactory.WEAK,
+                        x,
+                        y,
+                        brickWidth,
+                        brickHeight
+                );
+
+                bricks.add(brick);
             }
         }
     }

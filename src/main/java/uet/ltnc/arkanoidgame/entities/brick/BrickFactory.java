@@ -3,6 +3,7 @@ package uet.ltnc.arkanoidgame.entities.brick;
 public class BrickFactory {
 
     public static final int WEAK = 1;
+    public static final int MEDIUM = 2;
 
     private BrickFactory() {
     }
@@ -17,7 +18,8 @@ public class BrickFactory {
         switch (type) {
             case WEAK:
                 return new BrickWeak(x, y, width, height);
-
+            case MEDIUM:
+                return new BrickMedium(x, y, width, height);
             default:
                 throw new IllegalArgumentException(   //lỗi tham số kh hợp lệ
                         "Loại gạch không hợp lệ: " + type

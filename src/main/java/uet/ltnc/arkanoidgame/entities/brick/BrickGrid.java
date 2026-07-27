@@ -20,8 +20,10 @@ public class BrickGrid {
 
                 if (row < 2) {
                     brickType = BrickFactory.WEAK;
-                } else {
+                } else if (row < 4) {
                     brickType = BrickFactory.MEDIUM;
+                } else {
+                    brickType = BrickFactory.STRONG;
                 }
 
                 Brick brick = BrickFactory.createBrick(

@@ -18,7 +18,9 @@ public class BrickGrid {
                 double y = row * (brickHeight + 5) + 50;
                 int brickType;
 
-                if (row < 2) {
+                if (row == 4 && (col == 0 || col == cols - 1)) {
+                    brickType = BrickFactory.UNBREAKABLE;
+                } else if (row < 2) {
                     brickType = BrickFactory.WEAK;
                 } else if (row < 4) {
                     brickType = BrickFactory.MEDIUM;

@@ -1,35 +1,16 @@
 package uet.ltnc.arkanoidgame.entities.brick;
 
 public class BrickFactory {
-
-    public static final int WEAK = 1;
-    public static final int MEDIUM = 2;
-    public static final int STRONG = 3;
-    public static final int UNBREAKABLE = 4;
-
-    private BrickFactory() {
+    public static Brick createBrick(int id, double x, double y) {
+        if (id == 0) return null;
+        if (id >= 1 && id <= 14) return new Brick(x, y, Brick.byId(id));
+        if (id == 15) return createRandomBrick(x, y);
+        throw new IllegalArgumentException("Invalid brick ID: " + id);
     }
 
-    public static Brick createBrick(
-            int type,
-            double x,
-            double y,
-            double width,
-            double height) {
-
-        switch (type) {
-            case WEAK:
-                return new BrickWeak(x, y, width, height);
-            case MEDIUM:
-                return new BrickMedium(x, y, width, height);
-            case STRONG:
-                return new BrickStrong(x, y, width, height);
-            case UNBREAKABLE:
-                return new BrickUnbreakable(x, y, width, height);
-            default:
-                throw new IllegalArgumentException(   //lỗi tham số kh hợp lệ
-                        "Loại gạch không hợp lệ: " + type
-                );
-        }
+    public static Brick createRandomBrick(double x, double y) {
+        int[] validIds = {1, 2, 3, 4, 5, 6, 7, 8};
+        int randomIndex = (int)(Math.random() * validIds.length);
+        return createBrick(validIds[randomIndex], x, y);
     }
 }

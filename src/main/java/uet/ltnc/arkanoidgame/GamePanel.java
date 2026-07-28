@@ -47,6 +47,8 @@ public class GamePanel extends Canvas {
     private void update() {
         ball.update();
         paddle.update();
+        bricks.update();
+
         ball.checkCollision(paddle);
         ball.checkCollision(bricks);
     }

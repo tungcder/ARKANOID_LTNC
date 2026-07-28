@@ -16,9 +16,19 @@ public class GamePanel extends Canvas {
 
     public GamePanel() {
         super(800, 600);
+
         paddle = new Paddle(350, 550, 100, 15);
         ball = new Ball(390, 300, 10);
-        bricks = new BrickGrid(8, 5);
+
+        int[][] level1 = {
+                {4, 0, 1, 1, 1, 1, 0, 4},
+                {0, 1, 2, 2, 2, 2, 1, 0},
+                {1, 2, 3, 3, 3, 3, 2, 1},
+                {0, 2, 2, 0, 0, 2, 2, 0},
+                {4, 0, 3, 1, 1, 3, 0, 4}
+        };
+
+        bricks = new BrickGrid(level1);
 
         setFocusTraversable(true);
 

@@ -6,27 +6,29 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class BrickGrid {
+
     private List<Brick> bricks = new ArrayList<>();
 
-    public BrickGrid(int cols, int rows) {
+    public BrickGrid(int[][] map) {
         double brickWidth = 80;
         double brickHeight = 25;
+        double horizontalGap = 5;
+        double verticalGap = 5;
+        double startX = 40;
+        double startY = 50;
 
-        for (int row = 0; row < rows; row++) {
-            for (int col = 0; col < cols; col++) {
-                double x = col * (brickWidth + 5) + 40;
-                double y = row * (brickHeight + 5) + 50;
-                int brickType;
+        for (int row = 0; row < map.length; row++) {
+            for (int col = 0; col < map[row].length; col++) {
 
-                if (row == 4 && (col == 0 || col == cols - 1)) {
-                    brickType = BrickFactory.UNBREAKABLE;
-                } else if (row < 2) {
-                    brickType = BrickFactory.WEAK;
-                } else if (row < 4) {
-                    brickType = BrickFactory.MEDIUM;
-                } else {
-                    brickType = BrickFactory.STRONG;
+                int brickType = map[row][col];
+
+                //số 0 nghĩa là vị trí trống, không tạo gạch
+                if (brickType == 0) {
+                    continue;
                 }
+
+                double x = col * (brickWidth + horizontalGap) + startX;
+                double y = row * (brickHeight + verticalGap) + startY;
 
                 Brick brick = BrickFactory.createBrick(
                         brickType,
@@ -35,7 +37,6 @@ public class BrickGrid {
                         brickWidth,
                         brickHeight
                 );
-
 
                 bricks.add(brick);
             }

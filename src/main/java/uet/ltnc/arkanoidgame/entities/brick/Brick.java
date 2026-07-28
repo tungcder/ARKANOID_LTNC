@@ -77,6 +77,14 @@ trả về true khi gạch vỡ trong lần đập này
         }
     }
 
+    public void update() {
+        // Gạch bình thường không di chuyển
+    }
+
+    protected void setX(double x) {
+        this.x = x;
+    }
+
     public int getHitsRequired() { return hitsRequired; }
     public int getCurrentHits() { return currentHits; }
     public int getHealth() { return hitsRequired - currentHits; }

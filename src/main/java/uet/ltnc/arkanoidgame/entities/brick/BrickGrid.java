@@ -49,6 +49,12 @@ public class BrickGrid {
         }
     }
 
+    public void update() {
+        for (Brick brick : bricks) {
+            brick.update();
+        }
+    }
+
     public List<Brick> getBricks() {
         return bricks;
     }

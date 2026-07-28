@@ -6,6 +6,7 @@ public class BrickFactory {
     public static final int MEDIUM = 2;
     public static final int STRONG = 3;
     public static final int UNBREAKABLE = 4;
+    public static final int MOVING = 5;
 
     private BrickFactory() {
     }
@@ -26,6 +27,8 @@ public class BrickFactory {
                 return new BrickStrong(x, y, width, height);
             case UNBREAKABLE:
                 return new BrickUnbreakable(x, y, width, height);
+            case MOVING:
+                return new BrickMove(x, y, width, height);
             default:
                 throw new IllegalArgumentException(   //lỗi tham số kh hợp lệ
                         "Loại gạch không hợp lệ: " + type

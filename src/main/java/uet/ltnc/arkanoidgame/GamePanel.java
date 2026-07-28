@@ -7,6 +7,7 @@ import javafx.scene.paint.Color;
 import uet.ltnc.arkanoidgame.entities.ball.Ball;
 import uet.ltnc.arkanoidgame.entities.brick.BrickGrid;
 import uet.ltnc.arkanoidgame.entities.paddle.Paddle;
+import uet.ltnc.arkanoidgame.entities.map.MapLoader;
 
 public class GamePanel extends Canvas {
 
@@ -20,13 +21,8 @@ public class GamePanel extends Canvas {
         paddle = new Paddle(350, 550, 100, 15);
         ball = new Ball(390, 300, 10);
 
-        int[][] level1 = {
-                {4, 0, 1, 1, 1, 1, 0, 4},
-                {0, 1, 2, 2, 2, 2, 1, 0},
-                {1, 2, 3, 3, 3, 3, 2, 1},
-                {0, 2, 2, 0, 0, 2, 2, 0},
-                {4, 0, 3, 1, 1, 3, 0, 4}
-        };
+        int[][] level1 =
+                MapLoader.loadMap("/Levels/Map1.csv");
 
         bricks = new BrickGrid(level1);
 

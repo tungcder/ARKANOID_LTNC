@@ -7,13 +7,14 @@ import javafx.scene.paint.Color;
 import uet.ltnc.arkanoidgame.entities.ball.Ball;
 import uet.ltnc.arkanoidgame.entities.brick.BrickGrid;
 import uet.ltnc.arkanoidgame.entities.paddle.Paddle;
-import uet.ltnc.arkanoidgame.entities.map.MapLoader;
+import uet.ltnc.arkanoidgame.entities.map.MapManager;
 
 public class GamePanel extends Canvas {
 
     private Paddle paddle;
     private Ball ball;
     private BrickGrid bricks;
+    private MapManager mapManager;
 
     public GamePanel() {
         super(800, 600);
@@ -21,10 +22,8 @@ public class GamePanel extends Canvas {
         paddle = new Paddle(350, 550, 100, 15);
         ball = new Ball(390, 300, 10);
 
-        int[][] level1 =
-                MapLoader.loadMap("/Levels/Map1.csv");
-
-        bricks = new BrickGrid(level1);
+        mapManager = new MapManager();
+        bricks = new BrickGrid(mapManager.loadCurrentMap());
 
         setFocusTraversable(true);
 

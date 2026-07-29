@@ -4,7 +4,8 @@ public class MapManager {
 
     private final String[] levelPaths = {
             "/Levels/Map1.csv",
-            "/Levels/Map2.csv"
+            "/Levels/Map2.csv",
+            "/Levels/Map3.csv"
     };
 
     private int currentLevel;

@@ -55,6 +55,16 @@ public class BrickGrid {
         }
     }
 
+    public boolean isLevelComplete() {
+        for (Brick brick : bricks) {
+            if (!brick.isDestroyed() && brick.isBreakable()) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
     public List<Brick> getBricks() {
         return bricks;
     }

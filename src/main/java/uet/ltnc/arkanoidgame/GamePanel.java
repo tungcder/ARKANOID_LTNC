@@ -50,6 +50,8 @@ public class GamePanel extends Canvas {
 
         ball.checkCollision(paddle);
         ball.checkCollision(bricks);
+
+        checkLevelTransition();
     }
 
     private void render(GraphicsContext gc) {
@@ -59,5 +61,11 @@ public class GamePanel extends Canvas {
         bricks.render(gc);
         paddle.render(gc);
         ball.render(gc);
+    }
+
+    private void checkLevelTransition() {
+        if (bricks.isLevelComplete() && mapManager.nextLevel()) {
+            bricks = new BrickGrid(mapManager.loadCurrentMap());
+        }
     }
 }

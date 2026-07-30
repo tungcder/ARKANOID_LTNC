@@ -55,6 +55,22 @@ public class BrickGrid {
         }
     }
 
+    public List<BrickPowerup> getPendingPowerupDrops() {
+        List<BrickPowerup> pendingDrops = new ArrayList<>();
+
+        for (Brick brick : bricks) {
+            if (brick instanceof BrickPowerup) {
+                BrickPowerup powerupBrick = (BrickPowerup) brick;
+
+                if (powerupBrick.shouldDropItem()) {
+                    pendingDrops.add(powerupBrick);
+                }
+            }
+        }
+
+        return pendingDrops;
+    }
+
     public boolean isLevelComplete() {
         for (Brick brick : bricks) {
             if (!brick.isDestroyed() && brick.isBreakable()) {

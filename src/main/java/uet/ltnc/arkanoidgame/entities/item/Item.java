@@ -5,6 +5,8 @@ import javafx.scene.paint.Color;
 import uet.ltnc.arkanoidgame.entities.ball.Ball;
 import uet.ltnc.arkanoidgame.entities.paddle.Paddle;
 import uet.ltnc.arkanoidgame.utils.GameConstants;
+import javafx.scene.image.Image;
+import java.io.InputStream;
 
 public abstract class Item {
 
@@ -17,7 +19,13 @@ public abstract class Item {
     private double fallSpeed;
     private boolean collected;
 
+    private Image image;
+
     protected Item(double x, double y) {
+        this(x, y, null);
+    }
+
+    protected Item(double x, double y, String imagePath) {
         width = 30;
         height = 30;
 
@@ -26,6 +34,16 @@ public abstract class Item {
 
         fallSpeed = 2;
         collected = false;
+        image = null;
+
+        if (imagePath != null) {
+            InputStream input =
+                    getClass().getResourceAsStream(imagePath);
+
+            if (input != null) {
+                image = new Image(input);
+            }
+        }
     }
 
     public void update() {
@@ -39,11 +57,15 @@ public abstract class Item {
             return;
         }
 
-        gc.setFill(getColor());
-        gc.fillRect(x, y, width, height);
+        if (image != null) {
+            gc.drawImage(image, x, y, width, height);
+        } else {
+            gc.setFill(getColor());
+            gc.fillRect(x, y, width, height);
 
-        gc.setStroke(Color.WHITE);
-        gc.strokeRect(x, y, width, height);
+            gc.setStroke(Color.WHITE);
+            gc.strokeRect(x, y, width, height);
+        }
     }
 
     public boolean collidesWith(Paddle paddle) {

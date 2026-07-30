@@ -2,7 +2,7 @@ package uet.ltnc.arkanoidgame.entities.map;
 
 public class MapManager {
 
-    private final String[] mapPaths = {
+    private final String[] levelPaths = {
             "/Levels/Map1.csv",
             "/Levels/Map2.csv",
             "/Levels/Map3.csv",

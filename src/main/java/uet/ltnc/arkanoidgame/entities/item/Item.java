@@ -91,6 +91,12 @@ public abstract class Item {
 
     public abstract void apply(Paddle paddle, Ball ball);
 
+    public abstract String getBuffName();
+
+    public abstract int getDurationSeconds();
+
+    public abstract boolean isBuff();
+
     public double getX() {
         return x;
     }

@@ -2,6 +2,8 @@ package uet.ltnc.arkanoidgame.entities.ball;
 
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
+import javafx.animation.PauseTransition;
+import javafx.util.Duration;
 
 import uet.ltnc.arkanoidgame.entities.paddle.Paddle;
 import uet.ltnc.arkanoidgame.entities.brick.Brick;
@@ -12,10 +14,16 @@ public class Ball {
     private double radius;      // bán kính bóng
     private double dx = 3, dy = -3; // tốc độ ban đầu
 
+    private final double baseRadius;
+    private PauseTransition sizeEffectTimer;
+
     public Ball(double x, double y, double radius) {
         this.x = x;
         this.y = y;
         this.radius = radius;
+
+        this.baseRadius = radius;
+        this.sizeEffectTimer = null;
     }
 
     public void update() {
@@ -50,6 +58,50 @@ public class Ball {
                 break;
             }
         }
+    }
+
+    public void applySizeBuff(double multiplier,
+                              double durationSeconds) {
+        if (multiplier <= 0 || durationSeconds <= 0) {
+            return;
+        }
+
+        changeRadius(baseRadius * multiplier);
+
+        if (sizeEffectTimer != null) {
+            sizeEffectTimer.stop();
+        }
+
+        sizeEffectTimer = new PauseTransition(
+                Duration.seconds(durationSeconds)
+        );
+
+        sizeEffectTimer.setOnFinished(
+                event -> resetSize()
+        );
+
+        sizeEffectTimer.playFromStart();
+    }
+
+    private void changeRadius(double newRadius) {
+        double centerX = x + radius;
+        double centerY = y + radius;
+
+        radius = newRadius;
+
+        x = centerX - radius;
+        y = centerY - radius;
+
+        x = Math.max(
+                0,
+                Math.min(x, 800 - radius * 2)
+        );
+
+        y = Math.max(0, y);
+    }
+
+    private void resetSize() {
+        changeRadius(baseRadius);
     }
 
     public void render(GraphicsContext gc) {

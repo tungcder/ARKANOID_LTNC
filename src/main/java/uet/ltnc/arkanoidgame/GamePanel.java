@@ -11,6 +11,8 @@ import uet.ltnc.arkanoidgame.entities.item.ItemManager;
 import uet.ltnc.arkanoidgame.entities.item.buff.BiggerPaddle;
 import uet.ltnc.arkanoidgame.entities.map.MapManager;
 import uet.ltnc.arkanoidgame.entities.paddle.Paddle;
+import uet.ltnc.arkanoidgame.entities.item.Item;
+import uet.ltnc.arkanoidgame.entities.item.debuff.SmallerPaddle;
 
 public class GamePanel extends Canvas {
 
@@ -64,7 +66,7 @@ public class GamePanel extends Canvas {
         ball.checkCollision(paddle);
         ball.checkCollision(bricks);
 
-        spawnBiggerPaddleItems();
+        spawnPowerupItems();
 
         itemManager.update(paddle, ball);
 
@@ -86,7 +88,7 @@ public class GamePanel extends Canvas {
         ball.render(gc);
     }
 
-    private void spawnBiggerPaddleItems() {
+    private void spawnPowerupItems() {
         for (BrickPowerup powerupBrick
                 : bricks.getPendingPowerupDrops()) {
 
@@ -98,11 +100,15 @@ public class GamePanel extends Canvas {
                     powerupBrick.getY()
                             + powerupBrick.getHeight();
 
-            BiggerPaddle item =
-                    new BiggerPaddle(itemX, itemY);
+            Item item;
+
+            if (Math.random() < 0.5) {
+                item = new BiggerPaddle(itemX, itemY);
+            } else {
+                item = new SmallerPaddle(itemX, itemY);
+            }
 
             itemManager.addItem(item);
-
             powerupBrick.markItemDropped();
         }
     }

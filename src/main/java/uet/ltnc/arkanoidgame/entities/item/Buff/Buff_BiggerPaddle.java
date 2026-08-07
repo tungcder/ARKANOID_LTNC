@@ -1,11 +1,11 @@
-package uet.ltnc.arkanoidgame.entities.item.buff;
+package uet.ltnc.arkanoidgame.entities.item.Buff;
 
 import javafx.scene.paint.Color;
 import uet.ltnc.arkanoidgame.entities.ball.Ball;
 import uet.ltnc.arkanoidgame.entities.item.Item;
 import uet.ltnc.arkanoidgame.entities.paddle.Paddle;
 
-public class BiggerPaddle extends Item {
+public class Buff_BiggerPaddle extends Item {
 
     private static final String IMAGE_PATH =
             "/Images/Items/Buff/BiggerPaddle.png";
@@ -13,7 +13,7 @@ public class BiggerPaddle extends Item {
     private static final double SIZE_MULTIPLIER = 1.25;
     private static final int DURATION_SECONDS = 7;
 
-    public BiggerPaddle(double x, double y) {
+    public Buff_BiggerPaddle(double x, double y) {
         super(x, y, IMAGE_PATH);
     }
 

@@ -1,11 +1,11 @@
-package uet.ltnc.arkanoidgame.entities.item.debuff;
+package uet.ltnc.arkanoidgame.entities.item.Debuff;
 
 import javafx.scene.paint.Color;
 import uet.ltnc.arkanoidgame.entities.ball.Ball;
 import uet.ltnc.arkanoidgame.entities.item.Item;
 import uet.ltnc.arkanoidgame.entities.paddle.Paddle;
 
-public class SmallerPaddle extends Item {
+public class Debuff_SmallerPaddle extends Item {
 
     private static final String IMAGE_PATH =
             "/Images/Items/DeBuff/SmallerPaddle.png";
@@ -13,7 +13,7 @@ public class SmallerPaddle extends Item {
     private static final double SIZE_MULTIPLIER = 0.7;
     private static final int DURATION_SECONDS = 7;
 
-    public SmallerPaddle(double x, double y) {
+    public Debuff_SmallerPaddle(double x, double y) {
         super(x, y, IMAGE_PATH);
     }
 

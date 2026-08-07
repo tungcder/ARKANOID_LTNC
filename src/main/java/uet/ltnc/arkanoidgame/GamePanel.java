@@ -8,14 +8,15 @@ import uet.ltnc.arkanoidgame.entities.ball.Ball;
 import uet.ltnc.arkanoidgame.entities.brick.BrickGrid;
 import uet.ltnc.arkanoidgame.entities.brick.BrickPowerup;
 import uet.ltnc.arkanoidgame.entities.item.ItemManager;
-import uet.ltnc.arkanoidgame.entities.item.buff.BiggerPaddle;
+import uet.ltnc.arkanoidgame.entities.item.Buff.Buff_BiggerPaddle;
 import uet.ltnc.arkanoidgame.entities.map.MapManager;
 import uet.ltnc.arkanoidgame.entities.paddle.Paddle;
 import uet.ltnc.arkanoidgame.entities.item.Item;
-import uet.ltnc.arkanoidgame.entities.item.debuff.SmallerPaddle;
-import uet.ltnc.arkanoidgame.entities.item.buff.BiggerBall;
-import uet.ltnc.arkanoidgame.entities.item.debuff.SmallerBall;
-import uet.ltnc.arkanoidgame.entities.item.debuff.FastBall;
+import uet.ltnc.arkanoidgame.entities.item.Debuff.Debuff_SmallerPaddle;
+import uet.ltnc.arkanoidgame.entities.item.Buff.Buff_BiggerBall;
+import uet.ltnc.arkanoidgame.entities.item.Debuff.Debuff_SmallerBall;
+import uet.ltnc.arkanoidgame.entities.item.Debuff.Debuff_FastBall;
+import uet.ltnc.arkanoidgame.entities.item.Buff.Buff_SlowerBall;
 
 public class GamePanel extends Canvas {
 
@@ -105,18 +106,22 @@ public class GamePanel extends Canvas {
 
             Item item;
 
-            int itemType = (int) (Math.random() * 5);
+            int itemType = (int) (Math.random() * 6);
 
             if (itemType == 0) {
-                item = new BiggerPaddle(itemX, itemY);
+                item = new Buff_BiggerPaddle(itemX, itemY);
             } else if (itemType == 1) {
-                item = new SmallerPaddle(itemX, itemY);
+                item = new Debuff_SmallerPaddle(itemX, itemY);
             } else if (itemType == 2) {
-                item = new BiggerBall(itemX, itemY);
+                item = new Buff_BiggerBall(itemX, itemY);
             } else if (itemType == 3) {
-                item = new SmallerBall(itemX, itemY);
-            } else {
-                item = new FastBall(itemX, itemY);
+                item = new Debuff_SmallerBall(itemX, itemY);
+            }
+            else if (itemType == 4) {
+                item = new Debuff_FastBall(itemX, itemY);
+            }
+            else {
+                item = new Buff_SlowerBall(itemX, itemY);
             }
 
             itemManager.addItem(item);

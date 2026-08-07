@@ -1,38 +1,38 @@
-package uet.ltnc.arkanoidgame.entities.item.debuff;
+package uet.ltnc.arkanoidgame.entities.item.Debuff;
 
 import javafx.scene.paint.Color;
 import uet.ltnc.arkanoidgame.entities.ball.Ball;
 import uet.ltnc.arkanoidgame.entities.item.Item;
 import uet.ltnc.arkanoidgame.entities.paddle.Paddle;
 
-public class SmallerBall extends Item {
+public class Debuff_FastBall extends Item {
 
     private static final String IMAGE_PATH =
-            "/Images/Items/DeBuff/SmallerBall.png";
+            "/Images/Items/DeBuff/FastBall.png";
 
-    private static final double SIZE_MULTIPLIER = 0.8;
+    private static final double SPEED_MULTIPLIER = 2.0;
     private static final int DURATION_SECONDS = 7;
 
-    public SmallerBall(double x, double y) {
+    public Debuff_FastBall(double x, double y) {
         super(x, y, IMAGE_PATH);
     }
 
     @Override
     public void apply(Paddle paddle, Ball ball) {
-        ball.applySizeBuff(
-                SIZE_MULTIPLIER,
+        ball.applySpeedBuff(
+                SPEED_MULTIPLIER,
                 DURATION_SECONDS
         );
     }
 
     @Override
     protected Color getColor() {
-        return Color.INDIANRED;
+        return Color.RED;
     }
 
     @Override
     public String getBuffName() {
-        return "Smaller Ball";
+        return "Fast Ball";
     }
 
     @Override

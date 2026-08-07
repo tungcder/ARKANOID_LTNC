@@ -17,6 +17,9 @@ public class Ball {
     private final double baseRadius;
     private PauseTransition sizeEffectTimer;
 
+    private final double baseSpeed;
+    private PauseTransition speedEffectTimer;
+
     public Ball(double x, double y, double radius) {
         this.x = x;
         this.y = y;
@@ -24,6 +27,9 @@ public class Ball {
 
         this.baseRadius = radius;
         this.sizeEffectTimer = null;
+
+        this.baseSpeed = Math.hypot(dx, dy);
+        this.speedEffectTimer = null;
     }
 
     public void update() {
@@ -102,6 +108,48 @@ public class Ball {
 
     private void resetSize() {
         changeRadius(baseRadius);
+    }
+
+    public void applySpeedBuff(double multiplier,
+                               double durationSeconds) {
+        if (multiplier <= 0 || durationSeconds <= 0) {
+            return;
+        }
+
+        changeSpeed(baseSpeed * multiplier);
+
+        if (speedEffectTimer != null) {
+            speedEffectTimer.stop();
+        }
+
+        speedEffectTimer = new PauseTransition(
+                Duration.seconds(durationSeconds)
+        );
+
+        speedEffectTimer.setOnFinished(
+                event -> resetSpeed()
+        );
+
+        speedEffectTimer.playFromStart();
+    }
+
+    private void changeSpeed(double newSpeed) {
+        double currentSpeed = Math.hypot(dx, dy);
+
+        if (currentSpeed < 0.000001) {
+            dx = 0;
+            dy = -newSpeed;
+            return;
+        }
+
+        double scale = newSpeed / currentSpeed;
+
+        dx *= scale;
+        dy *= scale;
+    }
+
+    private void resetSpeed() {
+        changeSpeed(baseSpeed);
     }
 
     public void render(GraphicsContext gc) {

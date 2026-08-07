@@ -15,6 +15,7 @@ import uet.ltnc.arkanoidgame.entities.item.Item;
 import uet.ltnc.arkanoidgame.entities.item.debuff.SmallerPaddle;
 import uet.ltnc.arkanoidgame.entities.item.buff.BiggerBall;
 import uet.ltnc.arkanoidgame.entities.item.debuff.SmallerBall;
+import uet.ltnc.arkanoidgame.entities.item.debuff.FastBall;
 
 public class GamePanel extends Canvas {
 
@@ -104,7 +105,7 @@ public class GamePanel extends Canvas {
 
             Item item;
 
-            int itemType = (int) (Math.random() * 4);
+            int itemType = (int) (Math.random() * 5);
 
             if (itemType == 0) {
                 item = new BiggerPaddle(itemX, itemY);
@@ -112,8 +113,10 @@ public class GamePanel extends Canvas {
                 item = new SmallerPaddle(itemX, itemY);
             } else if (itemType == 2) {
                 item = new BiggerBall(itemX, itemY);
-            } else {
+            } else if (itemType == 3) {
                 item = new SmallerBall(itemX, itemY);
+            } else {
+                item = new FastBall(itemX, itemY);
             }
 
             itemManager.addItem(item);

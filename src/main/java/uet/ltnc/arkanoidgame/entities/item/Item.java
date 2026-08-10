@@ -112,4 +112,12 @@ public abstract class Item {
     public double getHeight() {
         return height;
     }
+
+    public boolean isExtraLife() {
+        return false;
+    }
+
+    public boolean isCollected() {
+        return collected;
+    }
 }

@@ -21,17 +21,24 @@ public class ItemManager {
         }
     }
 
-    public void update(Paddle paddle, Ball ball) {
+    public int update(Paddle paddle, Ball ball) {
+        int extraLives = 0;
+
         for (int i = items.size() - 1; i >= 0; i--) {
             Item item = items.get(i);
 
             item.update();
             item.collect(paddle, ball);
 
+            if (item.isCollected() && item.isExtraLife()) {
+                extraLives++;
+            }
+
             if (!item.isActive()) {
                 items.remove(i);
             }
         }
+        return extraLives;
     }
 
     public void render(GraphicsContext gc) {

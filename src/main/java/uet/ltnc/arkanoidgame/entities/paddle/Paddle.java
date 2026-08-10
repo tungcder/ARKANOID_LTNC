@@ -17,6 +17,9 @@ public class Paddle {
     private final double baseWidth;
     private PauseTransition sizeEffectTimer;
 
+    private boolean reverseDirection = false;
+    private PauseTransition reverseEffectTimer;
+
     public Paddle(double x, double y, double width, double height) {
         this.x = x;
         this.y = y;
@@ -28,8 +31,38 @@ public class Paddle {
     }
 
     public void update() {
-        if (keys.contains(KeyCode.LEFT) && x > 0) x -= speed;
-        if (keys.contains(KeyCode.RIGHT) && x + width < 800) x += speed;
+        if (keys.contains(KeyCode.LEFT)) {
+            if (reverseDirection) {
+                if (x + width < GameConstants.WIDTH) x += speed;
+            } else {
+                if (x > 0) x -= speed;
+            }
+        }
+
+        if (keys.contains(KeyCode.RIGHT)) {
+            if (reverseDirection) {
+                if (x > 0) x -= speed;
+            } else {
+                if (x + width < GameConstants.WIDTH) x += speed;
+            }
+        }
+    }
+
+    public void applyReverseDirection(double seconds) {
+        reverseDirection = true;
+
+        if (reverseEffectTimer != null) {
+            reverseEffectTimer.stop();
+        }
+
+        reverseEffectTimer =
+                new PauseTransition(Duration.seconds(seconds));
+
+        reverseEffectTimer.setOnFinished(
+                event -> reverseDirection = false
+        );
+
+        reverseEffectTimer.playFromStart();
     }
 
     public void render(GraphicsContext gc) {
@@ -45,8 +78,7 @@ public class Paddle {
         keys.remove(code);
     }
 
-    public void applySizeBuff(double multiplier,
-                              double durationSeconds) {
+    public void applySizeBuff(double multiplier, double durationSeconds) {
         if (multiplier <= 0 || durationSeconds <= 0) {
             return;
         }

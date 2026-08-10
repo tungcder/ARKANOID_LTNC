@@ -17,6 +17,9 @@ import uet.ltnc.arkanoidgame.entities.item.Buff.Buff_BiggerBall;
 import uet.ltnc.arkanoidgame.entities.item.Debuff.Debuff_SmallerBall;
 import uet.ltnc.arkanoidgame.entities.item.Debuff.Debuff_FastBall;
 import uet.ltnc.arkanoidgame.entities.item.Buff.Buff_SlowerBall;
+import uet.ltnc.arkanoidgame.entities.item.Debuff.Debuff_ReversePaddle;
+import uet.ltnc.arkanoidgame.entities.item.Buff.Buff_ExplosiveBall;
+import uet.ltnc.arkanoidgame.entities.item.Buff.Buff_ExtraLives;
 
 public class GamePanel extends Canvas {
 
@@ -106,7 +109,7 @@ public class GamePanel extends Canvas {
 
             Item item;
 
-            int itemType = (int) (Math.random() * 6);
+            int itemType = (int) (Math.random() * 9);
 
             if (itemType == 0) {
                 item = new Buff_BiggerPaddle(itemX, itemY);
@@ -120,8 +123,17 @@ public class GamePanel extends Canvas {
             else if (itemType == 4) {
                 item = new Debuff_FastBall(itemX, itemY);
             }
-            else {
+            else if (itemType == 5) {
                 item = new Buff_SlowerBall(itemX, itemY);
+            }
+            else if (itemType == 6) {
+                item = new Debuff_ReversePaddle(itemX, itemY);
+            }
+            else if (itemType == 7) {
+                item = new Buff_ExplosiveBall(itemX, itemY);
+            }
+            else {
+                item = new Buff_ExtraLives(itemX, itemY);
             }
 
             itemManager.addItem(item);

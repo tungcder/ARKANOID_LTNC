@@ -20,6 +20,9 @@ public class Ball {
     private final double baseSpeed;
     private PauseTransition speedEffectTimer;
 
+    private boolean explosive = false;
+    private PauseTransition explosiveEffectTimer;
+
     public Ball(double x, double y, double radius) {
         this.x = x;
         this.y = y;
@@ -30,6 +33,9 @@ public class Ball {
 
         this.baseSpeed = Math.hypot(dx, dy);
         this.speedEffectTimer = null;
+
+        this.explosive = false;
+        this.explosiveEffectTimer = null;
     }
 
     public void update() {
@@ -150,6 +156,32 @@ public class Ball {
 
     private void resetSpeed() {
         changeSpeed(baseSpeed);
+    }
+
+    public void applyExplosiveBuff(double durationSeconds) {
+        if (durationSeconds <= 0) {
+            return;
+        }
+
+        explosive = true;
+
+        if (explosiveEffectTimer != null) {
+            explosiveEffectTimer.stop();
+        }
+
+        explosiveEffectTimer = new PauseTransition(
+                Duration.seconds(durationSeconds)
+        );
+
+        explosiveEffectTimer.setOnFinished(
+                event -> explosive = false
+        );
+
+        explosiveEffectTimer.playFromStart();
+    }
+
+    public boolean isExplosive() {
+        return explosive;
     }
 
     public void render(GraphicsContext gc) {

@@ -1,33 +1,21 @@
-package uet.ltnc.arkanoidgame.entities.item.Debuff;
+package uet.ltnc.arkanoidgame.entities.item.DeBuff;
 
-import javafx.scene.paint.Color;
 import uet.ltnc.arkanoidgame.entities.ball.Ball;
 import uet.ltnc.arkanoidgame.entities.item.Item;
 import uet.ltnc.arkanoidgame.entities.paddle.Paddle;
 
-public class Debuff_SmallerBall extends Item {
+public class DeBuff_SmallerBall extends Item {
+    private static final String IMAGE_PATH = "/Images/Items/DeBuff/SmallerBall.png";
+    private static final double SIZE_DECREASE = 0.8;
+    private static final double DEBUFF_DURATION = 7.0;
 
-    private static final String IMAGE_PATH =
-            "/Images/Items/DeBuff/SmallerBall.png";
-
-    private static final double SIZE_MULTIPLIER = 0.8;
-    private static final int DURATION_SECONDS = 7;
-
-    public Debuff_SmallerBall(double x, double y) {
+    public DeBuff_SmallerBall(double x, double y) {
         super(x, y, IMAGE_PATH);
     }
 
     @Override
     public void apply(Paddle paddle, Ball ball) {
-        ball.applySizeBuff(
-                SIZE_MULTIPLIER,
-                DURATION_SECONDS
-        );
-    }
-
-    @Override
-    protected Color getColor() {
-        return Color.INDIANRED;
+        ball.applySizeBuff(SIZE_DECREASE, DEBUFF_DURATION);
     }
 
     @Override
@@ -37,7 +25,7 @@ public class Debuff_SmallerBall extends Item {
 
     @Override
     public int getDurationSeconds() {
-        return DURATION_SECONDS;
+        return (int) DEBUFF_DURATION;
     }
 
     @Override

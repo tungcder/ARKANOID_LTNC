@@ -1,34 +1,39 @@
-package uet.ltnc.arkanoidgame.entities.item.Debuff;
+package uet.ltnc.arkanoidgame.entities.item.DeBuff;
 
-import javafx.scene.paint.Color;
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
+import javafx.util.Duration;
 import uet.ltnc.arkanoidgame.entities.ball.Ball;
 import uet.ltnc.arkanoidgame.entities.item.Item;
 import uet.ltnc.arkanoidgame.entities.paddle.Paddle;
 
-public class Debuff_ReversePaddle extends Item {
+public class DeBuff_ReversePaddle extends Item {
+    private static final String IMAGE_PATH = "/Images/Items/DeBuff/ReversePaddle.png";
+    private static final double DEBUFF_DURATION = 5.0;
 
-    public Debuff_ReversePaddle(double x, double y) {
-        super(x, y);
+    public DeBuff_ReversePaddle(double x, double y) {
+        super(x, y, IMAGE_PATH);
     }
 
     @Override
     public void apply(Paddle paddle, Ball ball) {
-        paddle.applyReverseDirection(5);
-    }
+        paddle.setReverseDirection(true);
 
-    @Override
-    protected Color getColor() {
-        return Color.ORANGE;
+        Timeline timeline = new Timeline(new KeyFrame(
+                Duration.seconds(DEBUFF_DURATION),
+                ae -> paddle.setReverseDirection(false)
+        ));
+        timeline.play();
     }
 
     @Override
     public String getBuffName() {
-        return "Reverse Paddle";
+        return "Reverse Control";
     }
 
     @Override
     public int getDurationSeconds() {
-        return 5;
+        return (int) DEBUFF_DURATION;
     }
 
     @Override

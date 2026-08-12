@@ -1,17 +1,12 @@
-package uet.oop.arkanoidgame.entities.brick;
+package uet.ltnc.arkanoidgame.entities.brick;
 
 import javafx.scene.paint.Color;
 
 public class BrickUnbreakable extends Brick {
-    private static final String IMAGE_PATH = "unbreak.png";
 
-    public BrickUnbreakable(double x, double y, double width, double height) {
-        super(x, y, width, height, Integer.MAX_VALUE, IMAGE_PATH);
-    }
-
-    @Override
-    public boolean hit() {
-        return false;
+    public BrickUnbreakable(double x, double y,
+                            double width, double height) {
+        super(x, y, width, height, 1);
     }
 
     @Override
@@ -20,7 +15,7 @@ public class BrickUnbreakable extends Brick {
     }
 
     @Override
-    protected Color getFallbackColor() {
-        return Color.GRAY; // Màu fallback cho Unbreakable
+    protected Color getColor() {
+        return Color.GRAY;
     }
 }

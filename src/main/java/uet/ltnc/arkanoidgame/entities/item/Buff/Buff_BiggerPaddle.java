@@ -1,13 +1,17 @@
 package uet.ltnc.arkanoidgame.entities.item.Buff;
 
+import javafx.scene.paint.Color;
 import uet.ltnc.arkanoidgame.entities.ball.Ball;
 import uet.ltnc.arkanoidgame.entities.item.Item;
 import uet.ltnc.arkanoidgame.entities.paddle.Paddle;
 
 public class Buff_BiggerPaddle extends Item {
-    private static final String IMAGE_PATH = "/Images/Items/Buff/BiggerPaddle.png";
-    private static final double SIZE_INCREASE = 1.25;
-    private static final double BUFF_DURATION = 7.0;
+
+    private static final String IMAGE_PATH =
+            "/Images/Items/Buff/BiggerPaddle.png";
+
+    private static final double SIZE_MULTIPLIER = 1.25;
+    private static final int DURATION_SECONDS = 7;
 
     public Buff_BiggerPaddle(double x, double y) {
         super(x, y, IMAGE_PATH);
@@ -15,7 +19,15 @@ public class Buff_BiggerPaddle extends Item {
 
     @Override
     public void apply(Paddle paddle, Ball ball) {
-        paddle.applySizeBuff(SIZE_INCREASE, BUFF_DURATION);
+        paddle.applySizeBuff(
+                SIZE_MULTIPLIER,
+                DURATION_SECONDS
+        );
+    }
+
+    @Override
+    protected Color getColor() {
+        return Color.LIGHTGREEN;
     }
 
     @Override
@@ -25,7 +37,7 @@ public class Buff_BiggerPaddle extends Item {
 
     @Override
     public int getDurationSeconds() {
-        return (int) BUFF_DURATION;
+        return DURATION_SECONDS;
     }
 
     @Override

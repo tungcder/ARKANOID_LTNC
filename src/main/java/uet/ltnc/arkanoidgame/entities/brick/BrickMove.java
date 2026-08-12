@@ -1,86 +1,49 @@
-package uet.oop.arkanoidgame.entities.brick;
+package uet.ltnc.arkanoidgame.entities.brick;
 
 import javafx.scene.paint.Color;
-import java.util.List;
+import uet.ltnc.arkanoidgame.GameConstants;
 
-public class BrickMove extends Brick implements Movable {
-    private static final String IMAGE_PATH = "unbreak.png";
-    private static final double SPEED = 1.0;
-    private int direction = 1;
+public class BrickMove extends Brick {
 
-    private double minX;
-    private double maxX;
-    private boolean rangeInitialized = false;
+    private double speedX;
+    private final double minX;
+    private final double maxX;
 
-    public BrickMove(double x, double y, double width, double height) {
-        super(x, y, width, height, Integer.MAX_VALUE, IMAGE_PATH);
-    }
+    public BrickMove(double x, double y,
+                     double width, double height) {
+        super(x, y, width, height, 1);
 
-    @Override
-    public void initMovementRange(BrickGrid brickGrid) {
-        if (rangeInitialized) return;
+        speedX = 1.5;
 
-        List<Brick> allBricks = brickGrid.getBricks();
-        double tolerance = 5.0;
-        double centerY = y + height / 2.0;
+        minX = Math.max(0, x - 40);
 
-        double leftEdge = 0;
-        for (Brick b : allBricks) {
-            if (!b.isDestroyed() &&
-                    Math.abs((b.getY() + b.getHeight() / 2.0) - centerY) < tolerance &&
-                    b.getX() + b.getWidth() <= x) {
-                leftEdge = Math.max(leftEdge, b.getX() + b.getWidth());
-            }
-        }
-
-        double rightEdge = 600;
-        for (Brick b : allBricks) {
-            if (!b.isDestroyed() &&
-                    Math.abs((b.getY() + b.getHeight() / 2.0) - centerY) < tolerance &&
-                    b.getX() >= x + width) {
-                rightEdge = Math.min(rightEdge, b.getX());
-            }
-        }
-
-        minX = Math.max(0, leftEdge);
-        maxX = Math.min(600 - width, rightEdge - width);
-        rangeInitialized = true;
-
-        System.out.println("BrickMove(" + x + "," + y + ") range: " + minX + " → " + maxX);
+        maxX = Math.min(
+                GameConstants.WIDTH - width,
+                x + 40
+        );
     }
 
     @Override
     public void update() {
-        if (destroyed || !rangeInitialized) return;
-
-        x += SPEED * direction;
-
-        if (x <= minX) {
-            x = minX;
-            direction = 1;
-        } else if (x >= maxX) {
-            x = maxX;
-            direction = -1;
+        if (isDestroyed()) {
+            return;
         }
+
+        double nextX = getX() + speedX;
+
+        if (nextX <= minX) {
+            nextX = minX;
+            speedX = Math.abs(speedX);
+        } else if (nextX >= maxX) {
+            nextX = maxX;
+            speedX = -Math.abs(speedX);
+        }
+
+        setX(nextX);
     }
 
     @Override
-    public void reset() {
-        rangeInitialized = false;
-        direction = 1;
-    }
-    @Override
-    public boolean hit() {
-        return false;
-    }
-
-    @Override
-    public boolean isBreakable() {
-        return false;
-    }
-
-    @Override
-    protected Color getFallbackColor() {
-        return Color.LIME;
+    protected Color getColor() {
+        return Color.VIOLET;
     }
 }

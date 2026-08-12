@@ -1,32 +1,41 @@
-package uet.oop.arkanoidgame.entities.brick;
+package uet.ltnc.arkanoidgame.entities.brick;
 
 public class BrickFactory {
-    /**
-     * Tạo brick dựa trên type.
-     * @param type Mã type (1-6).
-     * @param x Tọa độ x.
-     * @param y Tọa độ y.
-     * @param width Chiều rộng.
-     * @param height Chiều cao.
-     * @return Brick tương ứng.
-     * @throws IllegalArgumentException Nếu type không hợp lệ.
-     */
-    public static Brick createBrick(int type, double x, double y, double width, double height) {
+
+    public static final int WEAK = 1;
+    public static final int MEDIUM = 2;
+    public static final int STRONG = 3;
+    public static final int UNBREAKABLE = 4;
+    public static final int POWERUP = 5;
+    public static final int MOVING = 6;
+
+    private BrickFactory() {
+    }
+
+    public static Brick createBrick(
+            int type,
+            double x,
+            double y,
+            double width,
+            double height) {
+
         switch (type) {
-            case 1:
+            case WEAK:
                 return new BrickWeak(x, y, width, height);
-            case 2:
+            case MEDIUM:
                 return new BrickMedium(x, y, width, height);
-            case 3:
+            case STRONG:
                 return new BrickStrong(x, y, width, height);
-            case 4:
+            case UNBREAKABLE:
                 return new BrickUnbreakable(x, y, width, height);
-            case 5:
+            case POWERUP:
                 return new BrickPowerup(x, y, width, height);
-            case 6:
+            case MOVING:
                 return new BrickMove(x, y, width, height);
             default:
-                throw new IllegalArgumentException("Unknown brick type: " + type);
+                throw new IllegalArgumentException(   //lỗi tham số kh hợp lệ
+                        "Loại gạch không hợp lệ: " + type
+                );
         }
     }
 }

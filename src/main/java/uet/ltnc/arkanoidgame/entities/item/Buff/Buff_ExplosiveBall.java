@@ -1,24 +1,22 @@
 package uet.ltnc.arkanoidgame.entities.item.Buff;
 
-import javafx.scene.paint.Color;
 import uet.ltnc.arkanoidgame.entities.ball.Ball;
 import uet.ltnc.arkanoidgame.entities.item.Item;
 import uet.ltnc.arkanoidgame.entities.paddle.Paddle;
 
 public class Buff_ExplosiveBall extends Item {
 
+    private static final String IMAGE_PATH = "/Images/Items/Buff/ExplosiveBall.png";
+    private static final double EXPLOSION_RADIUS = 80.0;
+    private static final double DURATION_SECONDS = 7.0;
+
     public Buff_ExplosiveBall(double x, double y) {
-        super(x, y);
+        super(x, y, IMAGE_PATH);
     }
 
     @Override
     public void apply(Paddle paddle, Ball ball) {
-        ball.applyExplosiveBuff(7);
-    }
-
-    @Override
-    protected Color getColor() {
-        return Color.RED;
+        ball.applyExplosiveBuff(EXPLOSION_RADIUS, DURATION_SECONDS);
     }
 
     @Override
@@ -28,7 +26,7 @@ public class Buff_ExplosiveBall extends Item {
 
     @Override
     public int getDurationSeconds() {
-        return 7;
+        return (int) DURATION_SECONDS;
     }
 
     @Override

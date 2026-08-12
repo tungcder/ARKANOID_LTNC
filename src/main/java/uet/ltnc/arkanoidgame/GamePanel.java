@@ -6,20 +6,13 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 import uet.ltnc.arkanoidgame.entities.ball.Ball;
 import uet.ltnc.arkanoidgame.entities.brick.BrickGrid;
-import uet.ltnc.arkanoidgame.entities.brick.BrickPowerup;
-import uet.ltnc.arkanoidgame.entities.item.ItemManager;
-import uet.ltnc.arkanoidgame.entities.item.Buff.Buff_BiggerPaddle;
+import uet.ltnc.arkanoidgame.entities.item.Item;
 import uet.ltnc.arkanoidgame.entities.map.MapManager;
 import uet.ltnc.arkanoidgame.entities.paddle.Paddle;
-import uet.ltnc.arkanoidgame.entities.item.Item;
-import uet.ltnc.arkanoidgame.entities.item.Debuff.Debuff_SmallerPaddle;
-import uet.ltnc.arkanoidgame.entities.item.Buff.Buff_BiggerBall;
-import uet.ltnc.arkanoidgame.entities.item.Debuff.Debuff_SmallerBall;
-import uet.ltnc.arkanoidgame.entities.item.Debuff.Debuff_FastBall;
-import uet.ltnc.arkanoidgame.entities.item.Buff.Buff_SlowerBall;
-import uet.ltnc.arkanoidgame.entities.item.Debuff.Debuff_ReversePaddle;
-import uet.ltnc.arkanoidgame.entities.item.Buff.Buff_ExplosiveBall;
-import uet.ltnc.arkanoidgame.entities.item.Buff.Buff_ExtraLives;
+
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 public class GamePanel extends Canvas {
 
@@ -27,7 +20,21 @@ public class GamePanel extends Canvas {
     private Ball ball;
     private BrickGrid bricks;
     private MapManager mapManager;
-    private ItemManager itemManager;
+
+    private final List<Item> items = new ArrayList<>();
+
+    private static final int INITIAL_LIVES = 3;
+    private static final int MAX_LIVES = 5;
+
+    public static int playerLives = INITIAL_LIVES;
+
+    public static void addLives(int amount) {
+        playerLives += amount;
+
+        if (playerLives > MAX_LIVES) {
+            playerLives = MAX_LIVES;
+        }
+    }
 
     public GamePanel() {
         super(800, 600);
@@ -36,21 +43,12 @@ public class GamePanel extends Canvas {
         ball = new Ball(390, 300, 10);
 
         mapManager = new MapManager();
-        bricks = new BrickGrid(
-                mapManager.loadCurrentMap()
-        );
-
-        itemManager = new ItemManager();
+        bricks = new BrickGrid(mapManager.getCurrentMapPath());
 
         setFocusTraversable(true);
 
-        setOnKeyPressed(
-                e -> paddle.addKey(e.getCode())
-        );
-
-        setOnKeyReleased(
-                e -> paddle.removeKey(e.getCode())
-        );
+        setOnKeyPressed(e -> paddle.addKey(e.getCode()));
+        setOnKeyReleased(e -> paddle.removeKey(e.getCode()));
     }
 
     public void startGame() {
@@ -71,83 +69,55 @@ public class GamePanel extends Canvas {
         bricks.update();
 
         ball.checkCollision(paddle);
-        ball.checkCollision(bricks);
 
-        spawnPowerupItems();
+        Item spawned = ball.checkCollision(bricks);
 
-        itemManager.update(paddle, ball);
+        if (spawned != null) {
+            items.add(spawned);
+        }
+
+        updateItems();
 
         checkLevelTransition();
     }
 
-    private void render(GraphicsContext gc) {
-        gc.setFill(Color.BLACK);
-        gc.fillRect(
-                0,
-                0,
-                getWidth(),
-                getHeight()
-        );
+    private void updateItems() {
+        Iterator<Item> iter = items.iterator();
 
-        bricks.render(gc);
-        itemManager.render(gc);
-        paddle.render(gc);
-        ball.render(gc);
+        while (iter.hasNext()) {
+            Item item = iter.next();
+
+            item.update();
+
+            if (item.getY() > getHeight()) {
+                iter.remove();
+            } else if (item.collidesWith(paddle)) {
+                item.apply(paddle, ball);
+                iter.remove();
+            }
+        }
     }
 
-    private void spawnPowerupItems() {
-        for (BrickPowerup powerupBrick
-                : bricks.getPendingPowerupDrops()) {
+    private void render(GraphicsContext gc) {
+        gc.setFill(Color.BLACK);
+        gc.fillRect(0, 0, getWidth(), getHeight());
 
-            double itemX =
-                    powerupBrick.getX()
-                            + powerupBrick.getWidth() / 2;
+        bricks.render(gc);
+        paddle.render(gc);
+        ball.render(gc);
 
-            double itemY =
-                    powerupBrick.getY()
-                            + powerupBrick.getHeight();
-
-            Item item;
-
-            int itemType = (int) (Math.random() * 9);
-
-            if (itemType == 0) {
-                item = new Buff_BiggerPaddle(itemX, itemY);
-            } else if (itemType == 1) {
-                item = new Debuff_SmallerPaddle(itemX, itemY);
-            } else if (itemType == 2) {
-                item = new Buff_BiggerBall(itemX, itemY);
-            } else if (itemType == 3) {
-                item = new Debuff_SmallerBall(itemX, itemY);
-            }
-            else if (itemType == 4) {
-                item = new Debuff_FastBall(itemX, itemY);
-            }
-            else if (itemType == 5) {
-                item = new Buff_SlowerBall(itemX, itemY);
-            }
-            else if (itemType == 6) {
-                item = new Debuff_ReversePaddle(itemX, itemY);
-            }
-            else if (itemType == 7) {
-                item = new Buff_ExplosiveBall(itemX, itemY);
-            }
-            else {
-                item = new Buff_ExtraLives(itemX, itemY);
-            }
-
-            itemManager.addItem(item);
-            powerupBrick.markItemDropped();
+        for (Item item : items) {
+            item.render(gc);
         }
     }
 
     private void checkLevelTransition() {
-        if (bricks.isLevelComplete()
-                && mapManager.nextLevel()) {
+        if (!bricks.isLevelComplete()) {
+            return;
+        }
 
-            bricks = new BrickGrid(
-                    mapManager.loadCurrentMap()
-            );
+        if (mapManager.hasNextLevel()) {
+            mapManager.nextLevel(bricks);
         }
     }
 }

@@ -1,93 +1,59 @@
 package uet.ltnc.arkanoidgame.entities.item;
 
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.image.Image;
 import javafx.scene.paint.Color;
 import uet.ltnc.arkanoidgame.entities.ball.Ball;
 import uet.ltnc.arkanoidgame.entities.paddle.Paddle;
-import uet.ltnc.arkanoidgame.utils.GameConstants;
-import javafx.scene.image.Image;
-import java.io.InputStream;
+
+import java.util.Objects;
 
 public abstract class Item {
 
-    private double x;
-    private double y;
+    protected double x, y, width = 40, height = 40;
+    protected double fallSpeed = 1.0;
+    protected Image image;
 
-    private final double width;
-    private final double height;
-
-    private double fallSpeed;
-    private boolean collected;
-
-    private Image image;
-
-    protected Item(double x, double y) {
-        this(x, y, null);
-    }
-
-    protected Item(double x, double y, String imagePath) {
-        width = 30;
-        height = 30;
-
+    public Item(double x, double y, String imagePath) {
         this.x = x - width / 2;
         this.y = y;
 
-        fallSpeed = 2;
-        collected = false;
-        image = null;
+        try {
+            this.image = new Image(Objects.requireNonNull(
+                    getClass().getResourceAsStream(imagePath)
+            ));
 
-        if (imagePath != null) {
-            InputStream input =
-                    getClass().getResourceAsStream(imagePath);
-
-            if (input != null) {
-                image = new Image(input);
+            if (image.isError()) {
+                System.err.println("Lỗi load ảnh item: " + imagePath + " (isError=true)");
+                this.image = null;
             }
+        } catch (NullPointerException e) {
+            System.err.println("Không tìm thấy file item: " + imagePath);
+            this.image = null;
         }
     }
 
     public void update() {
-        if (!collected) {
-            y += fallSpeed;
-        }
+        y += fallSpeed;
     }
 
     public void render(GraphicsContext gc) {
-        if (collected) {
-            return;
-        }
-
         if (image != null) {
             gc.drawImage(image, x, y, width, height);
         } else {
-            gc.setFill(getColor());
+            gc.setFill(Color.LIME);
             gc.fillRect(x, y, width, height);
-
-            gc.setStroke(Color.WHITE);
+            gc.setStroke(Color.BLACK);
             gc.strokeRect(x, y, width, height);
         }
     }
 
     public boolean collidesWith(Paddle paddle) {
-        return !collected
-                && x < paddle.getX() + paddle.getWidth()
-                && x + width > paddle.getX()
-                && y < paddle.getY() + paddle.getHeight()
-                && y + height > paddle.getY();
+        return x < paddle.getX() + paddle.getWidth() &&
+                x + width > paddle.getX() &&
+                y < paddle.getY() + paddle.getHeight() &&
+                y + height > paddle.getY();
     }
-
-    public void collect(Paddle paddle, Ball ball) {
-        if (collidesWith(paddle)) {
-            apply(paddle, ball);
-            collected = true;
-        }
-    }
-
-    public boolean isActive() {
-        return !collected && y <= GameConstants.HEIGHT;
-    }
-
-    protected abstract Color getColor();
 
     public abstract void apply(Paddle paddle, Ball ball);
 
@@ -97,27 +63,7 @@ public abstract class Item {
 
     public abstract boolean isBuff();
 
-    public double getX() {
-        return x;
-    }
-
     public double getY() {
         return y;
-    }
-
-    public double getWidth() {
-        return width;
-    }
-
-    public double getHeight() {
-        return height;
-    }
-
-    public boolean isExtraLife() {
-        return false;
-    }
-
-    public boolean isCollected() {
-        return collected;
     }
 }

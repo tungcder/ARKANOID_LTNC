@@ -1,33 +1,60 @@
 package uet.ltnc.arkanoidgame.entities.brick;
 
 import javafx.scene.paint.Color;
+import uet.ltnc.arkanoidgame.entities.item.Item;
+import uet.ltnc.arkanoidgame.entities.item.Buff.Buff_BiggerPaddle;
+import uet.ltnc.arkanoidgame.entities.item.Buff.Buff_BiggerBall;
+import uet.ltnc.arkanoidgame.entities.item.Buff.Buff_ExplosiveBall;
+import uet.ltnc.arkanoidgame.entities.item.Buff.Buff_ExtraLives;
+import uet.ltnc.arkanoidgame.entities.item.Buff.Buff_SlowerBall;
+import uet.ltnc.arkanoidgame.entities.item.DeBuff.DeBuff_FastBall;
+import uet.ltnc.arkanoidgame.entities.item.DeBuff.DeBuff_ReversePaddle;
+import uet.ltnc.arkanoidgame.entities.item.DeBuff.DeBuff_SmallerBall;
+import uet.ltnc.arkanoidgame.entities.item.DeBuff.DeBuff_SmallerPaddle;
 
 public class BrickPowerup extends Brick {
 
-    private boolean itemDropped;
+    private static final String IMAGE_PATH = "weak.png";
+    private static final double DROP_CHANCE = 1;
 
-    public BrickPowerup(double x, double y,
-                        double width, double height) {
-        super(x, y, width, height, 1);
-        itemDropped = false;
+    public BrickPowerup(double x, double y, double width, double height) {
+        super(x, y, width, height, 1, IMAGE_PATH);
     }
 
     @Override
-    protected Color getColor() {
+    public Item getPowerup() {
+        if (destroyed && Math.random() < DROP_CHANCE) {
+            int itemType = (int) (Math.random() * 9);
+
+            switch (itemType) {
+                case 0:
+                    return new Buff_BiggerPaddle(x + width / 2, y + height);
+                case 1:
+                    return new DeBuff_ReversePaddle(x + width / 2, y + height);
+                case 2:
+                    return new DeBuff_FastBall(x + width / 2, y + height);
+                case 3:
+                    return new Buff_SlowerBall(x + width / 2, y + height);
+                case 4:
+                    return new Buff_BiggerBall(x + width / 2, y + height);
+                case 5:
+                    return new DeBuff_SmallerBall(x + width / 2, y + height);
+                case 6:
+                    return new DeBuff_SmallerPaddle(x + width / 2, y + height);
+                case 7:
+                    return new Buff_ExplosiveBall(x + width / 2, y + height);
+                case 8:
+                    return new Buff_ExtraLives(x + width / 2, y + height);
+                default:
+                    return null;
+            }
+        }
+
+        return null;
+    }
+
+    @Override
+    protected Color getFallbackColor() {
         return Color.PURPLE;
-    }
-
-    public boolean shouldDropItem() {
-        return isDestroyed() && !itemDropped;
-    }
-
-    public void markItemDropped() {
-        itemDropped = true;
-    }
-
-    @Override
-    public void reset() {
-        super.reset();
-        itemDropped = false;
     }
 }

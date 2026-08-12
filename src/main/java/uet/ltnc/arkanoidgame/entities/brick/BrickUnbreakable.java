@@ -4,9 +4,15 @@ import javafx.scene.paint.Color;
 
 public class BrickUnbreakable extends Brick {
 
-    public BrickUnbreakable(double x, double y,
-                            double width, double height) {
-        super(x, y, width, height, 1);
+    private static final String IMAGE_PATH = "unbreak.png";
+
+    public BrickUnbreakable(double x, double y, double width, double height) {
+        super(x, y, width, height, Integer.MAX_VALUE, IMAGE_PATH);
+    }
+
+    @Override
+    public boolean hit() {
+        return false;
     }
 
     @Override
@@ -15,7 +21,7 @@ public class BrickUnbreakable extends Brick {
     }
 
     @Override
-    protected Color getColor() {
+    protected Color getFallbackColor() {
         return Color.GRAY;
     }
 }

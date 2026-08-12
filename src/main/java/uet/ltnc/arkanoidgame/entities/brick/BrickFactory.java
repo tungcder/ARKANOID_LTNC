@@ -2,40 +2,22 @@ package uet.ltnc.arkanoidgame.entities.brick;
 
 public class BrickFactory {
 
-    public static final int WEAK = 1;
-    public static final int MEDIUM = 2;
-    public static final int STRONG = 3;
-    public static final int UNBREAKABLE = 4;
-    public static final int POWERUP = 5;
-    public static final int MOVING = 6;
-
-    private BrickFactory() {
-    }
-
-    public static Brick createBrick(
-            int type,
-            double x,
-            double y,
-            double width,
-            double height) {
-
+    public static Brick createBrick(int type, double x, double y, double width, double height) {
         switch (type) {
-            case WEAK:
+            case 1:
                 return new BrickWeak(x, y, width, height);
-            case MEDIUM:
+            case 2:
                 return new BrickMedium(x, y, width, height);
-            case STRONG:
+            case 3:
                 return new BrickStrong(x, y, width, height);
-            case UNBREAKABLE:
+            case 4:
                 return new BrickUnbreakable(x, y, width, height);
-            case POWERUP:
+            case 5:
                 return new BrickPowerup(x, y, width, height);
-            case MOVING:
+            case 6:
                 return new BrickMove(x, y, width, height);
             default:
-                throw new IllegalArgumentException(   //lỗi tham số kh hợp lệ
-                        "Loại gạch không hợp lệ: " + type
-                );
+                throw new IllegalArgumentException("Unknown brick type: " + type);
         }
     }
 }

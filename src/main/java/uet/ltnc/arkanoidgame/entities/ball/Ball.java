@@ -450,7 +450,7 @@ public class Ball {
         return y;
     }
 
-    // ✅ NEW: Setter cho vị trí (để support save/load)
+    // setter cho vị trí (để support save/load)
     public void setX(double x) {
         this.x = x;
         this.prevX = x; // Cập nhật cả prevX để tránh lỗi collision

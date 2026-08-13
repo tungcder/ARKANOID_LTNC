@@ -15,7 +15,7 @@ import uet.ltnc.arkanoidgame.GamePanel;
 import uet.ltnc.arkanoidgame.entities.data.GameSaveManager;
 import uet.ltnc.arkanoidgame.SoundManager;
 import uet.ltnc.arkanoidgame.Setting.SettingScreen;
-import uet.ltnc.arkanoidgame.HighScoreScreen; // ✅ THÊM DÒNG NÀY
+import uet.ltnc.arkanoidgame.HighScoreScreen;
 
 public class MainMenu extends StackPane {
 

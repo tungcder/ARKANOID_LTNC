@@ -52,8 +52,6 @@ public abstract class Item {
     }
 
     public abstract void apply(Paddle paddle, Ball ball);
-
-    // ✅ THÊM CÁC METHOD MỚI
     public abstract String getBuffName();
     public abstract int getDurationSeconds();
     public abstract boolean isBuff(); // true = buff, false = debuff

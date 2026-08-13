@@ -18,7 +18,6 @@ public class Buff_BiggerBall extends Item {
         ball.applySizeBuff(SIZE_INCREASE, BUFF_DURATION);
     }
 
-    // ✅ THÊM METHOD ĐỂ LẤY TÊN VÀ THỜI GIAN
     @Override
     public String getBuffName() {
         return "Bigger Ball";

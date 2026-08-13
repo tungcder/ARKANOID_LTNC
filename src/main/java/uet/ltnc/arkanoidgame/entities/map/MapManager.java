@@ -1,50 +1,67 @@
 package uet.ltnc.arkanoidgame.entities.map;
 
+import uet.ltnc.arkanoidgame.entities.brick.BrickGrid;
+
 public class MapManager {
-
-    private final String[] levelPaths = {
-            "/Levels/Map1.csv",
-            "/Levels/Map2.csv",
+    private String[] levelPaths = {
+            "/Levels/Map4.csv",
             "/Levels/Map3.csv",
-            "/Levels/Map4.csv"
+            "/Levels/Map2.csv",
+            "/Levels/Map1.csv"
+            // Add more levels as needed
     };
+    private int currentLevel = 0;
 
-    private int currentLevel;
-
-    public MapManager() {
-        currentLevel = 0;
-    }
-
-    public int[][] loadCurrentMap() {
-        return MapLoader.loadMap(levelPaths[currentLevel]);
+    public void loadLevel(BrickGrid bricks) {
+        if (currentLevel < levelPaths.length) {
+            bricks.loadFrom(levelPaths[currentLevel]);
+        }
     }
 
     public boolean hasNextLevel() {
-        return currentLevel < levelPaths.length - 1;
+        return currentLevel + 1 < levelPaths.length;
     }
 
-    public boolean nextLevel() {
-        if (!hasNextLevel()) {
-            return false;
-        }
-
+    public void nextLevel(BrickGrid bricks) {
         currentLevel++;
-        return true;
+        loadLevel(bricks);
     }
 
-    public void reset() {
+    public void resetGame() {
         currentLevel = 0;
     }
 
-    public int getCurrentLevelNumber() {
-        return currentLevel + 1;
+    // === Thêm các method cho Save/Load ===
+
+    /**
+     * Lấy chỉ số level hiện tại
+     */
+    public int getCurrentLevelIndex() {
+        return currentLevel;
     }
 
-    public int getTotalLevels() {
-        return levelPaths.length;
-    }
-
+    /**
+     * Lấy đường dẫn map hiện tại
+     */
     public String getCurrentMapPath() {
-        return levelPaths[currentLevel];
+        if (currentLevel >= 0 && currentLevel < levelPaths.length) {
+            return levelPaths[currentLevel];
+        }
+        return "src/main/resources/Levels/Map1.csv";
+    }
+
+    /**
+     * Load level theo index cụ thể (dùng khi restore save)
+     */
+    public void loadLevelByIndex(BrickGrid bricks, int levelIndex) {
+        if (levelIndex >= 0 && levelIndex < levelPaths.length) {
+            currentLevel = levelIndex;
+            bricks.loadFrom(levelPaths[currentLevel]);
+        } else {
+            System.err.println("Invalid level index: " + levelIndex);
+            // Fallback về level 0 nếu index không hợp lệ
+            currentLevel = 0;
+            bricks.loadFrom(levelPaths[0]);
+        }
     }
 }

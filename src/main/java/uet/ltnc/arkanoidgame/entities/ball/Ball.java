@@ -1,191 +1,510 @@
 package uet.ltnc.arkanoidgame.entities.ball;
 
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.image.Image;
 import javafx.scene.paint.Color;
-import javafx.animation.PauseTransition;
 import javafx.util.Duration;
-
-import uet.ltnc.arkanoidgame.entities.paddle.Paddle;
 import uet.ltnc.arkanoidgame.entities.brick.Brick;
 import uet.ltnc.arkanoidgame.entities.brick.BrickGrid;
+import uet.ltnc.arkanoidgame.entities.item.Item;
+import uet.ltnc.arkanoidgame.entities.paddle.Paddle;
+import uet.ltnc.arkanoidgame.SoundManager;
+import uet.ltnc.arkanoidgame.ThemeManager;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 
 public class Ball {
-    private double x, y;        // tọa độ góc trên quả bóng
-    private double radius;      // bán kính bóng
-    private double dx = 3, dy = -3; // tốc độ ban đầu
+    private static final double CANVAS_W = 600;
+    private static final double CANVAS_H = 600;
+    private static final int FRAME_COUNT = 8;
+    private static final double FRAME_STEP = 10;
+    private static final double RESTITUTION = 1.0;
+    private static final double MAX_SPEED = 7.0;
+    private static final double MIN_ABS_DY = 2.0;
+    private static final double EPS = 1e-6;
 
-    private final double baseRadius;
-    private PauseTransition sizeEffectTimer;
+    private double x, y;
+    private double radius;
+    private double dx = 3, dy = -3;
+    private double prevX, prevY;
 
-    private final double baseSpeed;
-    private PauseTransition speedEffectTimer;
+    private final List<Image> frames = new ArrayList<>(FRAME_COUNT);
+    private int currentFrame = 0, frameCounter = 0;
 
+    // === Ball attach/release ===
+    private boolean attachedToPaddle = true;
+
+    // === Buff tốc độ ===
+    private double speedMultiplier = 1.0;
+    private double baseSpeed;
+    private Timeline speedBuffTimer;
+
+    // === Buff kích thước ===
+    private double sizeMultiplier = 1.0;
+    private double baseRadius;
+    private Timeline sizeBuffTimer;
+
+    // === Buff nổ (Explosive) ===
     private boolean explosive = false;
-    private PauseTransition explosiveEffectTimer;
+    private double explosionRadius = 0.0;
+    private Timeline explosiveTimer;
 
-    public Ball(double x, double y, double radius) {
+    private final SoundManager soundManager;
+
+    public Ball(double x, double y, double radius, SoundManager soundManager) {
         this.x = x;
         this.y = y;
         this.radius = radius;
-
+        this.soundManager = soundManager;
+        this.prevX = x;
+        this.prevY = y;
         this.baseRadius = radius;
-        this.sizeEffectTimer = null;
 
-        this.baseSpeed = Math.hypot(dx, dy);
-        this.speedEffectTimer = null;
+        loadFrames();
 
-        this.explosive = false;
-        this.explosiveEffectTimer = null;
-    }
-
-    public void update() {
-        x += dx;
-        y += dy;
-
-        // Va chạm tường
-        if (x <= 0 || x + radius * 2 >= 800) dx *= -1;
-        if (y <= 0) dy *= -1;
-    }
-
-    public void checkCollision(Paddle paddle) {
-        if (x + radius * 2 > paddle.getX() &&
-                x < paddle.getX() + paddle.getWidth() &&
-                y + radius * 2 >= paddle.getY() &&
-                y + radius * 2 <= paddle.getY() + paddle.getHeight()) {
-            dy *= -1;
-            y = paddle.getY() - radius * 2; // tránh dính paddle
+        // Lưu tốc độ gốc
+        baseSpeed = Math.hypot(dx, dy);
+        if (baseSpeed < EPS) {
+            baseSpeed = 5.0;
+            dx = 0;
+            dy = -baseSpeed;
         }
     }
 
-    public void checkCollision(BrickGrid grid) {
-        for (Brick brick : grid.getBricks()) {
-            if (!brick.isDestroyed() &&
-                    x + radius * 2 > brick.getX() &&
-                    x < brick.getX() + brick.getWidth() &&
-                    y + radius * 2 > brick.getY() &&
-                    y < brick.getY() + brick.getHeight()) {
-
-                dy *= -1;
-                brick.setDestroyed(true);
-                break;
+    private void loadFrames() {
+        for (int i = 1; i <= FRAME_COUNT; i++) {
+            final String assetPath = "ball/ball" + i + ".png";
+            final String path = ThemeManager.getImagePath(assetPath);
+            try {
+                frames.add(new Image(Objects.requireNonNull(
+                        Ball.class.getResourceAsStream(path),
+                        "Không tìm thấy ảnh: " + path
+                )));
+            } catch (Exception e) {
+                System.out.println("Lỗi load " + path + ": " + e.getMessage());
             }
         }
     }
 
-    public void applySizeBuff(double multiplier,
-                              double durationSeconds) {
-        if (multiplier <= 0 || durationSeconds <= 0) {
-            return;
-        }
-
-        changeRadius(baseRadius * multiplier);
-
-        if (sizeEffectTimer != null) {
-            sizeEffectTimer.stop();
-        }
-
-        sizeEffectTimer = new PauseTransition(
-                Duration.seconds(durationSeconds)
-        );
-
-        sizeEffectTimer.setOnFinished(
-                event -> resetSize()
-        );
-
-        sizeEffectTimer.playFromStart();
+    // =======================
+    // BALL ATTACH/RELEASE
+    // =======================
+    public void attachToPaddle(Paddle paddle) {
+        attachedToPaddle = true;
+        // đặt bóng ở giữa paddle, ngay phía trên
+        x = paddle.getX() + paddle.getWidth() / 2.0 - radius;
+        y = paddle.getY() - radius * 2.0;
+        dx = 0;
+        dy = 0;
     }
 
-    private void changeRadius(double newRadius) {
-        double centerX = x + radius;
-        double centerY = y + radius;
-
-        radius = newRadius;
-
-        x = centerX - radius;
-        y = centerY - radius;
-
-        x = Math.max(
-                0,
-                Math.min(x, 800 - radius * 2)
-        );
-
-        y = Math.max(0, y);
+    public void releaseFromPaddle() {
+        if (!attachedToPaddle) return;
+        attachedToPaddle = false;
+        // phóng thẳng lên với tốc độ gốc (có MIN_ABS_DY đảm bảo không quá phẳng)
+        dx = 0;
+        dy = -baseSpeed;
+        clampSpeed();
     }
 
-    private void resetSize() {
-        changeRadius(baseRadius);
+    public boolean isAttachedToPaddle() {
+        return attachedToPaddle;
     }
 
-    public void applySpeedBuff(double multiplier,
-                               double durationSeconds) {
-        if (multiplier <= 0 || durationSeconds <= 0) {
-            return;
-        }
+    // =======================
+    // QUẢN LÝ BUFF TỐC ĐỘ
+    // =======================
+    public void applySpeedBuff(double multiplier, double durationSeconds) {
+        if (speedBuffTimer != null) speedBuffTimer.stop();
 
-        changeSpeed(baseSpeed * multiplier);
+        speedMultiplier = multiplier;
+        renormalizeSpeed();
 
-        if (speedEffectTimer != null) {
-            speedEffectTimer.stop();
-        }
-
-        speedEffectTimer = new PauseTransition(
-                Duration.seconds(durationSeconds)
-        );
-
-        speedEffectTimer.setOnFinished(
-                event -> resetSpeed()
-        );
-
-        speedEffectTimer.playFromStart();
+        speedBuffTimer = new Timeline(new KeyFrame(
+                Duration.seconds(durationSeconds),
+                e -> {
+                    speedMultiplier = 1.0;
+                    renormalizeSpeed();
+                }
+        ));
+        speedBuffTimer.play();
     }
 
-    private void changeSpeed(double newSpeed) {
+    private void renormalizeSpeed() {
         double currentSpeed = Math.hypot(dx, dy);
+        double targetSpeed = baseSpeed * speedMultiplier;
 
-        if (currentSpeed < 0.000001) {
+        if (currentSpeed < EPS) {
             dx = 0;
-            dy = -newSpeed;
+            dy = -targetSpeed;
             return;
         }
 
-        double scale = newSpeed / currentSpeed;
-
+        double scale = targetSpeed / currentSpeed;
         dx *= scale;
         dy *= scale;
     }
 
-    private void resetSpeed() {
-        changeSpeed(baseSpeed);
+    // =======================
+    // QUẢN LÝ BUFF KÍCH THƯỚC
+    // =======================
+    public void applySizeBuff(double multiplier, double durationSeconds) {
+        if (sizeBuffTimer != null) sizeBuffTimer.stop();
+
+        sizeMultiplier = multiplier;
+        radius = baseRadius * sizeMultiplier;
+
+        sizeBuffTimer = new Timeline(new KeyFrame(
+                Duration.seconds(durationSeconds),
+                e -> {
+                    sizeMultiplier = 1.0;
+                    radius = baseRadius;
+                }
+        ));
+        sizeBuffTimer.play();
     }
 
-    public void applyExplosiveBuff(double durationSeconds) {
-        if (durationSeconds <= 0) {
+    // =======================
+    // QUẢN LÝ BUFF NỔ (EXPLOSIVE)
+    // =======================
+    public void applyExplosiveBuff(double radius, double durationSeconds) {
+        if (explosiveTimer != null) explosiveTimer.stop();
+
+        this.explosive = true;
+        this.explosionRadius = Math.max(0.0, radius);
+
+        explosiveTimer = new Timeline(new KeyFrame(
+                Duration.seconds(durationSeconds),
+                e -> {
+                    this.explosive = false;
+                    this.explosionRadius = 0.0;
+                }
+        ));
+        explosiveTimer.play();
+    }
+
+    public boolean isExplosive() { return explosive; }
+    public double getExplosionRadius() { return explosionRadius; }
+
+    // =======================
+    // UPDATE / RENDER
+    // =======================
+    /** Update theo paddle (dùng cho trạng thái dính bóng) */
+    public void update(Paddle paddle, double canvasW, double canvasH) {
+        if (attachedToPaddle) {
+            // Bóng dính và đi theo paddle
+            x = paddle.getX() + paddle.getWidth() / 2.0 - radius;
+            y = paddle.getY() - radius * 2.0;
+            // hoạt ảnh khung hình vẫn chạy để bóng sống động
+            animate();
+        } else {
+            update(canvasW, canvasH);
+        }
+    }
+
+    /** Update theo paddle với kích thước canvas mặc định */
+    public void update(Paddle paddle) {
+        update(paddle, CANVAS_W, CANVAS_H);
+    }
+
+    public void update(double canvasW, double canvasH) {
+        prevX = x;
+        prevY = y;
+
+        x += dx;
+        y += dy;
+
+        double d = radius * 2;
+        double cx = x + radius, cy = y + radius;
+
+        if (cx - radius <= 0) {
+            x = 0;
+            dx = Math.abs(dx) * RESTITUTION;
+        } else if (cx + radius >= canvasW) {
+            x = canvasW - d;
+            dx = -Math.abs(dx) * RESTITUTION;
+        }
+        if (cy - radius <= 0) {
+            y = 0;
+            dy = Math.abs(dy) * RESTITUTION;
+        }
+
+        animate();
+        clampSpeed();
+    }
+
+    public void update() {
+        update(CANVAS_W, CANVAS_H);
+    }
+
+    /** Kiểm tra bóng đã rơi khỏi màn hình chưa (để trừ mạng & respawn) */
+    public boolean isOutOfScreen(double canvasH) {
+        return (y + radius * 2.0) >= canvasH;
+    }
+
+    public void checkCollision(Paddle paddle) {
+        if (attachedToPaddle) return;
+
+        double rx = paddle.getX();
+        double ry = paddle.getY();
+        double rw = paddle.getWidth();
+        double rh = paddle.getHeight();
+
+        double cx = x + radius;
+        double cy = y + radius;
+
+        if (!circleIntersectsAABB(cx, cy, radius, rx, ry, rw, rh)) {
             return;
         }
 
-        explosive = true;
+        soundManager.playSfx("PaddleHit");
+        paddle.handleHit();
 
-        if (explosiveEffectTimer != null) {
-            explosiveEffectTimer.stop();
-        }
+        y = ry - 2 * radius;
+        dy = -Math.abs(dy) * RESTITUTION;
 
-        explosiveEffectTimer = new PauseTransition(
-                Duration.seconds(durationSeconds)
-        );
+        double hitOffset = (cx - (rx + rw / 2.0)) / (rw / 2.0);
+        hitOffset = clamp(hitOffset, -1.0, 1.0);
 
-        explosiveEffectTimer.setOnFinished(
-                event -> explosive = false
-        );
-
-        explosiveEffectTimer.playFromStart();
+        dx = hitOffset * MAX_SPEED;
+        clampSpeed();
     }
 
-    public boolean isExplosive() {
-        return explosive;
+
+    public Item checkCollision(BrickGrid grid) {
+        if (attachedToPaddle) return null; // đang dính thì chưa va gạch
+
+        double cx = x + radius, cy = y + radius;
+
+        for (Brick b : grid.getBricks()) {
+            if (b.isDestroyed()) continue;
+
+            double rx = b.getX(), ry = b.getY(), rw = b.getWidth(), rh = b.getHeight();
+            if (!circleIntersectsAABB(cx, cy, radius, rx, ry, rw, rh)) continue;
+
+            soundManager.playSfx("BrickHit");
+
+            CollisionSide side = resolveSideUsingPrevious(prevX, prevY, x, y, radius, rx, ry, rw, rh);
+
+            // Tính điểm va chạm gần nhất để làm tâm vụ nổ (nếu có)
+            double impactX = clamp(cx, rx, rx + rw);
+            double impactY = clamp(cy, ry, ry + rh);
+
+            switch (side) {
+                case TOP -> { y = ry - 2 * radius; reflectByNormal(0, -1); }
+                case BOTTOM -> { y = ry + rh; reflectByNormal(0, 1); }
+                case LEFT -> { x = rx - 2 * radius; reflectByNormal(-1, 0); }
+                case RIGHT -> { x = rx + rw; reflectByNormal(1, 0); }
+                default -> {
+                    double nx = clamp(cx, rx, rx + rw);
+                    double ny = clamp(cy, ry, ry + rh);
+                    reflectByNormal(cx - nx, cy - ny);
+                    double nlen = Math.hypot(cx - nx, cy - ny);
+                    if (nlen > 0) {
+                        double push = (radius - nlen) + 0.1;
+                        x += (cx - nx) / nlen * push;
+                        y += (cy - ny) / nlen * push;
+                    }
+                }
+            }
+
+            // Viên trúng trực tiếp
+            Item directDrop = null;
+            if (b.hit()) {
+                directDrop = b.getPowerup();
+            }
+
+            // Nếu có buff nổ → phá thêm các viên trong bán kính quanh điểm va chạm
+            Item splashDrop = null;
+            if (explosive && explosionRadius > 0.0) {
+                splashDrop = explodeAt(grid, impactX, impactY);
+            }
+
+            clampSpeed();
+
+            // Trả về item rơi: ưu tiên viên trúng trực tiếp, nếu không có thì viên do nổ
+            return (directDrop != null) ? directDrop : splashDrop;
+        }
+        return null;
     }
 
     public void render(GraphicsContext gc) {
-        gc.setFill(Color.YELLOW);
-        gc.fillOval(x, y, radius * 2, radius * 2);
+        double d = radius * 2;
+        gc.setImageSmoothing(true);
+        if (!frames.isEmpty()) gc.drawImage(frames.get(currentFrame), x, y, d, d);
+        else {
+            gc.setFill(Color.YELLOW);
+            gc.fillOval(x, y, d, d);
+        }
+    }
+
+    private void animate() {
+        if (frames.isEmpty()) return;
+        if (++frameCounter >= FRAME_STEP) {
+            currentFrame = (currentFrame + 1) % frames.size();
+            frameCounter = 0;
+        }
+    }
+
+    private void reflectByNormal(double nx, double ny) {
+        double len = Math.hypot(nx, ny);
+        if (len == 0) return;
+        nx /= len;
+        ny /= len;
+
+        double dot = dx * nx + dy * ny;
+        dx = dx - 2 * dot * nx;
+        dy = dy - 2 * dot * ny;
+
+        dx *= RESTITUTION;
+        dy *= RESTITUTION;
+
+        if (ny < 0) dy = -Math.abs(dy);
+        if (ny > 0) dy = Math.abs(dy);
+        if (nx < 0) dx = -Math.abs(dx);
+        if (nx > 0) dx = Math.abs(dx);
+    }
+
+    private void clampSpeed() {
+        if (dx > MAX_SPEED) dx = MAX_SPEED;
+        if (dx < -MAX_SPEED) dx = -MAX_SPEED;
+        if (dy > MAX_SPEED) dy = MAX_SPEED;
+        if (dy < -MAX_SPEED) dy = -MAX_SPEED;
+        if (Math.abs(dy) < MIN_ABS_DY) dy = (dy >= 0 ? MIN_ABS_DY : -MIN_ABS_DY);
+    }
+
+    private static boolean circleIntersectsAABB(double cx, double cy, double r,
+                                                double rx, double ry, double rw, double rh) {
+        double qx = clamp(cx, rx, rx + rw);
+        double qy = clamp(cy, ry, ry + rh);
+        double dx = cx - qx, dy = cy - qy;
+        return dx * dx + dy * dy <= r * r;
+    }
+
+    private static CollisionSide resolveSideUsingPrevious(double px, double py, double x, double y,
+                                                          double r, double rx, double ry, double rw, double rh) {
+        double pcx = px + r, pcy = py + r;
+        double cx = x + r, cy = y + r;
+
+        boolean wasAbove = (pcy + r) <= ry;
+        boolean wasBelow = (pcy - r) >= (ry + rh);
+        boolean wasLeft = (pcx + r) <= rx;
+        boolean wasRight = (pcx - r) >= (rx + rw);
+
+        if (wasAbove && cy + r >= ry) return CollisionSide.TOP;
+        if (wasBelow && cy - r <= ry + rh) return CollisionSide.BOTTOM;
+        if (wasLeft && cx + r >= rx) return CollisionSide.LEFT;
+        if (wasRight && cx - r <= rx + rw) return CollisionSide.RIGHT;
+
+        double penTop = Math.abs((cy + r) - ry);
+        double penBottom = Math.abs((ry + rh) - (cy - r));
+        double penLeft = Math.abs((cx + r) - rx);
+        double penRight = Math.abs((rx + rw) - (cx - r));
+
+        double min = penTop;
+        CollisionSide side = CollisionSide.TOP;
+        if (penBottom < min) { min = penBottom; side = CollisionSide.BOTTOM; }
+        if (penLeft < min) { min = penLeft; side = CollisionSide.LEFT; }
+        if (penRight < min) { side = CollisionSide.RIGHT; }
+        return side;
+    }
+
+    private static double clamp(double v, double lo, double hi) {
+        return Math.max(lo, Math.min(v, hi));
+    }
+
+    private enum CollisionSide { NONE, TOP, BOTTOM, LEFT, RIGHT }
+
+    // ======= HỖ TRỢ NỔ =======
+    private Item explodeAt(BrickGrid grid, double ix, double iy) {
+        Item firstDrop = null;
+        if (!explosive || explosionRadius <= 0) return null;
+
+        for (Brick nb : grid.getBricks()) {
+            if (nb.isDestroyed()) continue;
+
+            double bx = nb.getX() + nb.getWidth()  / 2.0;
+            double by = nb.getY() + nb.getHeight() / 2.0;
+            double dist = Math.hypot(bx - ix, by - iy);
+
+            if (dist <= explosionRadius) {
+                if (nb.hit()) {
+                    Item drop = nb.getPowerup();
+                    if (firstDrop == null) firstDrop = drop;
+                }
+            }
+        }
+        return firstDrop;
+    }
+
+    // === Getter/Setter ===
+    public double getX() {
+        return x;
+    }
+
+    public double getY() {
+        return y;
+    }
+
+    // ✅ NEW: Setter cho vị trí (để support save/load)
+    public void setX(double x) {
+        this.x = x;
+        this.prevX = x; // Cập nhật cả prevX để tránh lỗi collision
+    }
+
+    public void setY(double y) {
+        this.y = y;
+        this.prevY = y; // Cập nhật cả prevY để tránh lỗi collision
+    }
+
+    public double getRadius() {
+        return radius;
+    }
+
+    public void setRadius(double radius) {
+        this.radius = radius;
+    }
+
+    public void setSpeedMultiplier(double multiplier) {
+        this.speedMultiplier = multiplier;
+        renormalizeSpeed();
+    }
+
+    // Thêm getter/setter cho speed (dx, dy) để support save/load
+    public double getSpeedX() {
+        return dx;
+    }
+
+    public double getSpeedY() {
+        return dy;
+    }
+
+    public void setSpeedX(double speedX) {
+        this.dx = speedX;
+    }
+
+    public void setSpeedY(double speedY) {
+        this.dy = speedY;
+    }
+
+    // Alias methods (backward compatibility)
+    public double getDx() {
+        return dx;
+    }
+
+    public double getDy() {
+        return dy;
+    }
+
+    public void setDx(double dx) {
+        this.dx = dx;
+    }
+
+    public void setDy(double dy) {
+        this.dy = dy;
     }
 }

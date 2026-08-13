@@ -133,13 +133,12 @@ public class GamePanel {
         Scene gameScene = new Scene(rootPane, SCENE_WIDTH, SCENE_HEIGHT);
         stage.setScene(gameScene);
 
-        // Thiết lập xử lý khi đóng cửa sổ (nút X)
         setupWindowCloseHandler();
 
         if (loadSavedGame) {
-            loadGameState();
+            loadGameState(); // Load game → scoreManager được tạo + set điểm ở đây
         } else {
-            initEntities();
+            initEntities(); // Game mới → scoreManager = null
         }
 
         initInput();
@@ -271,10 +270,19 @@ public class GamePanel {
 
     public void startGame() {
         initializeGameTime();
+
+        // ❌ XÓA ĐOẠN NÀY:
+        // if (scoreManager == null) {
+        //     scoreManager = new Score();
+        // }
+        // scoreManager.startNewGame();
+
+        // ✅ THAY BẰNG:
         if (scoreManager == null) {
             scoreManager = new Score();
+            scoreManager.startNewGame(); // Chỉ gọi khi tạo mới
         }
-        scoreManager.startNewGame();
+        // Nếu scoreManager đã tồn tại (từ load game), KHÔNG gọi startNewGame()!
 
         // ✅ Bắt đầu level với số mạng hiện tại
         scoreManager.startNewLevel(playerLives);
@@ -331,7 +339,18 @@ public class GamePanel {
         updateEntities();
         updateItems();
         checkBallStatus();
+
+        // ✅ KIỂM TRA: Có ai đó reset score không?
+        int scoreBefore = score;
+        int scoreManagerBefore = scoreManager.getScore();
+
         updateHUD();
+
+        if (score != scoreBefore || scoreManager.getScore() != scoreManagerBefore) {
+            System.out.println("⚠️ SCORE CHANGED IN UPDATE:");
+            System.out.println("   - score: " + scoreBefore + " → " + score);
+            System.out.println("   - scoreManager: " + scoreManagerBefore + " → " + scoreManager.getScore());
+        }
     }
 
     private void updateEntities() {
@@ -350,12 +369,23 @@ public class GamePanel {
 
         if (bricksBefore > bricksAfter) {
             int bricksBroken = bricksBefore - bricksAfter;
+
+            System.out.println("🧱 BEFORE brick broken:");
+            System.out.println("   - score variable: " + score);
+            System.out.println("   - scoreManager.getScore(): " + scoreManager.getScore());
+
             // ✅ Gọi scoreManager để tính điểm với combo
             for (int i = 0; i < bricksBroken; i++) {
                 scoreManager.brickBroken(); // Tăng combo mỗi viên
             }
+
+            System.out.println("🧱 AFTER brick broken:");
+            System.out.println("   - scoreManager.getScore(): " + scoreManager.getScore());
+
             // ✅ Cập nhật score từ scoreManager
             score = scoreManager.getScore();
+
+            System.out.println("   - score variable: " + score);
         }
 
         if (spawned != null) {
@@ -502,7 +532,7 @@ public class GamePanel {
 
         if (scoreManager != null) {
             System.out.println("   - Recording game end");
-            scoreManager.recordGameEnd();
+
         }
 
         System.out.println("   - Deleting save file");
@@ -755,6 +785,7 @@ public class GamePanel {
 
             // Khởi tạo scoreManager
             scoreManager = new Score();
+            scoreManager.setScore(score);
 
             items.clear();
 

@@ -1,4 +1,4 @@
-package uet.oop.arkanoidgame;
+package uet.ltnc.arkanoidgame;
 
 import javafx.animation.FadeTransition;
 import javafx.animation.ScaleTransition;

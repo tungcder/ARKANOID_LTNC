@@ -9,14 +9,36 @@ public class HighScoreManager {
     private static final String HIGH_SCORE_FILE = "highscores.txt";
     private static final int MAX_HIGH_SCORES = 10;
 
+    /**
+     * Lưu high score (không trả về hạng).
+     * Giữ lại cho tương thích ngược với các nơi đang gọi hàm này.
+     */
     public static void saveHighScore(String playerName, int score, int timeInSeconds, int levelsCompleted, boolean gameCompleted) {
+        saveHighScoreAndGetRank(playerName, score, timeInSeconds, levelsCompleted, gameCompleted);
+    }
+
+    public static void saveHighScore(int score, int timeInSeconds, int levelsCompleted, boolean gameCompleted) {
+        saveHighScoreAndGetRank("Player", score, timeInSeconds, levelsCompleted, gameCompleted);
+    }
+
+    /**
+     * Lưu high score và trả về hạng THẬT SỰ sau khi đã thêm vào danh sách và sắp xếp.
+     * Ưu tiên dùng hàm này thay vì gọi getRank() rồi saveHighScore() riêng lẻ,
+     * vì gọi 2 lần có thể cho ra hạng không khớp khi có điểm bằng nhau (tie),
+     * và tránh đọc file 2 lần không cần thiết.
+     *
+     * @return hạng (rank) của điểm vừa lưu, tính từ 1
+     */
+    public static int saveHighScoreAndGetRank(String playerName, int score, int timeInSeconds, int levelsCompleted, boolean gameCompleted) {
+        int rank = -1;
         try {
             List<HighScore> scores = loadHighScores();
 
             HighScore newScore = new HighScore(playerName, score, timeInSeconds, levelsCompleted, gameCompleted);
             scores.add(newScore);
-
             Collections.sort(scores);
+
+            rank = scores.indexOf(newScore) + 1;
 
             if (scores.size() > MAX_HIGH_SCORES) {
                 scores = scores.subList(0, MAX_HIGH_SCORES);
@@ -24,37 +46,30 @@ public class HighScoreManager {
 
             saveToFile(scores);
 
-            System.out.println("✅ Đã lưu high score (" + newScore.getPlayerName() + "): " + score + " điểm");
+            System.out.println("✅ Đã lưu high score (" + newScore.getPlayerName() + "): " + score + " điểm, hạng #" + rank);
         } catch (Exception e) {
             System.err.println("❌ Lỗi khi lưu high score: " + e.getMessage());
             e.printStackTrace();
         }
-    }
-
-    public static void saveHighScore(int score, int timeInSeconds, int levelsCompleted, boolean gameCompleted) {
-        saveHighScore("Player", score, timeInSeconds, levelsCompleted, gameCompleted);
+        return rank;
     }
 
     public static List<HighScore> loadHighScores() {
         List<HighScore> scores = new ArrayList<>();
 
-        try {
-            File file = new File(HIGH_SCORE_FILE);
-            if (!file.exists()) {
-                return scores;
-            }
+        File file = new File(HIGH_SCORE_FILE);
+        if (!file.exists()) {
+            return scores;
+        }
 
-            BufferedReader reader = new BufferedReader(new FileReader(file));
+        try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
             String line;
-
             while ((line = reader.readLine()) != null) {
                 HighScore score = HighScore.fromFileLine(line);
                 if (score != null) {
                     scores.add(score);
                 }
             }
-
-            reader.close();
         } catch (Exception e) {
             System.err.println("❌ Lỗi khi tải high scores: " + e.getMessage());
         }
@@ -63,21 +78,22 @@ public class HighScoreManager {
     }
 
     private static void saveToFile(List<HighScore> scores) throws IOException {
-        BufferedWriter writer = new BufferedWriter(new FileWriter(HIGH_SCORE_FILE));
-
-        for (HighScore score : scores) {
-            writer.write(score.toFileLine());
-            writer.newLine();
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(HIGH_SCORE_FILE))) {
+            for (HighScore score : scores) {
+                writer.write(score.toFileLine());
+                writer.newLine();
+            }
         }
-
-        writer.close();
     }
 
     public static void clearHighScores() {
         File file = new File(HIGH_SCORE_FILE);
         if (file.exists()) {
-            file.delete();
-            System.out.println("✅ Đã xóa tất cả high scores");
+            if (file.delete()) {
+                System.out.println("✅ Đã xóa tất cả high scores");
+            } else {
+                System.err.println("❌ Không thể xóa file high scores");
+            }
         }
     }
 

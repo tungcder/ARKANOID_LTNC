@@ -34,10 +34,10 @@ public class HighScoreNameDialog extends StackPane {
         box.setPadding(new Insets(30));
         box.setStyle(
                 "-fx-background-color: linear-gradient(to bottom, #1a0933, #0a0a1e);" +
-                "-fx-background-radius: 20;" +
-                "-fx-border-color: #FFD700;" +
-                "-fx-border-width: 3;" +
-                "-fx-border-radius: 20;"
+                        "-fx-background-radius: 20;" +
+                        "-fx-border-color: #FFD700;" +
+                        "-fx-border-width: 3;" +
+                        "-fx-border-radius: 20;"
         );
 
         DropShadow glow = new DropShadow(25, Color.web("#FFD700", 0.6));
@@ -47,8 +47,10 @@ public class HighScoreNameDialog extends StackPane {
         title.setFont(Font.font("System", FontWeight.BOLD, 32));
         title.setTextFill(Color.web("#FFD700"));
 
-        int rank = HighScoreManager.getRank(score);
-        Label subTitle = new Label("Xếp hạng #" + rank + " | Điểm số: " + score);
+        // Hạng ước lượng, hiển thị TRƯỚC khi lưu (chỉ mang tính tham khảo,
+        // hạng chính xác sẽ được tính lại khi người chơi bấm nút LƯU KỶ LỤC)
+        int estimatedRank = HighScoreManager.getRank(score);
+        Label subTitle = new Label("Xếp hạng #" + estimatedRank + " | Điểm số: " + score);
         subTitle.setFont(Font.font("System", FontWeight.BOLD, 18));
         subTitle.setTextFill(Color.web("#00FFFF"));
 
@@ -63,11 +65,11 @@ public class HighScoreNameDialog extends StackPane {
         nameInput.setFont(Font.font("System", FontWeight.BOLD, 18));
         nameInput.setStyle(
                 "-fx-background-color: #2a2a4a;" +
-                "-fx-text-fill: #FFD700;" +
-                "-fx-background-radius: 10;" +
-                "-fx-border-color: #00FFFF;" +
-                "-fx-border-width: 2;" +
-                "-fx-border-radius: 10;"
+                        "-fx-text-fill: #FFD700;" +
+                        "-fx-background-radius: 10;" +
+                        "-fx-border-color: #00FFFF;" +
+                        "-fx-border-width: 2;" +
+                        "-fx-border-radius: 10;"
         );
 
         // Limit length to 15 characters
@@ -82,18 +84,30 @@ public class HighScoreNameDialog extends StackPane {
         submitBtn.setPrefSize(200, 50);
         submitBtn.setStyle(
                 "-fx-background-color: linear-gradient(to bottom, #00FFCC, #009999);" +
-                "-fx-text-fill: #0a0a1e;" +
-                "-fx-background-radius: 10;" +
-                "-fx-cursor: hand;"
+                        "-fx-text-fill: #0a0a1e;" +
+                        "-fx-background-radius: 10;" +
+                        "-fx-cursor: hand;"
         );
 
         submitBtn.setOnMouseEntered(e -> submitBtn.setScaleX(1.05));
         submitBtn.setOnMouseExited(e -> submitBtn.setScaleX(1.0));
 
+        // Chặn bấm 2 lần liên tiếp -> tránh lưu trùng 1 điểm số 2 lần vào file highscore
         submitBtn.setOnAction(e -> {
+            submitBtn.setDisable(true);
+
             String name = nameInput.getText().trim();
             if (name.isEmpty()) name = "Player";
-            HighScoreManager.saveHighScore(name, score, timeInSeconds, levelReached, gameCompleted);
+
+            // Lưu + lấy hạng CHÍNH XÁC trong 1 lần đọc/ghi file (không đọc file 2 lần)
+            int finalRank = HighScoreManager.saveHighScoreAndGetRank(
+                    name, score, timeInSeconds, levelReached, gameCompleted
+            );
+
+            if (finalRank > 0) {
+                subTitle.setText("Xếp hạng #" + finalRank + " | Điểm số: " + score);
+            }
+
             if (onSubmitted != null) {
                 onSubmitted.accept(name);
             }

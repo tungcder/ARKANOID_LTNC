@@ -15,7 +15,7 @@ public class HighScore implements Serializable, Comparable<HighScore> {
     private boolean gameCompleted;
 
     public HighScore(String playerName, int score, int timeInSeconds, int levelsCompleted, boolean gameCompleted) {
-        this.playerName = (playerName == null || playerName.trim().isEmpty()) ? "Player" : playerName.trim();
+        this.playerName = sanitizeName(playerName);
         this.score = score;
         this.timeInSeconds = timeInSeconds;
         this.dateTime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"));
@@ -28,7 +28,7 @@ public class HighScore implements Serializable, Comparable<HighScore> {
     }
 
     public HighScore(String playerName, int score, int timeInSeconds, String dateTime, int levelsCompleted, boolean gameCompleted) {
-        this.playerName = (playerName == null || playerName.trim().isEmpty()) ? "Player" : playerName.trim();
+        this.playerName = sanitizeName(playerName);
         this.score = score;
         this.timeInSeconds = timeInSeconds;
         this.dateTime = dateTime;
@@ -38,6 +38,20 @@ public class HighScore implements Serializable, Comparable<HighScore> {
 
     public HighScore(int score, int timeInSeconds, String dateTime, int levelsCompleted, boolean gameCompleted) {
         this("Player", score, timeInSeconds, dateTime, levelsCompleted, gameCompleted);
+    }
+
+    /**
+     * Làm sạch tên người chơi:
+     * - Rỗng/null -> "Player"
+     * - Bỏ dấu phẩy (vì dấu phẩy là delimiter khi lưu file) để tránh làm hỏng file save
+     * - Gộp khoảng trắng thừa
+     */
+    private static String sanitizeName(String name) {
+        if (name == null || name.trim().isEmpty()) {
+            return "Player";
+        }
+        String cleaned = name.trim().replace(",", " ").replaceAll("\\s+", " ");
+        return cleaned.isEmpty() ? "Player" : cleaned;
     }
 
     public String getPlayerName() {
@@ -111,4 +125,4 @@ public class HighScore implements Serializable, Comparable<HighScore> {
         }
         return null;
     }
-}
+}

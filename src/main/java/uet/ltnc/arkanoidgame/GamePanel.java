@@ -40,7 +40,6 @@ public class GamePanel {
 
     private static final int INITIAL_LIVES = 3;
     private static final int MAX_LIVES = 5;
-    private static final int ITEM_SCORE_BONUS = 100;
     private static final long NANOS_PER_SECOND = 1_000_000_000L;
 
     private static final int PADDLE_X = 250;
@@ -56,6 +55,10 @@ public class GamePanel {
     private static final String INITIAL_MAP_PATH = "/Levels/Map1.csv";
 
     private static final String GOLD_COLOR = "#FFD700";
+
+    // Bật flag này khi cần soi lỗi liên quan tới điểm số, để log ra console.
+    // Để false khi build bản chính thức cho gọn console.
+    private static final boolean DEBUG_SCORE = false;
 
     private final Stage stage;
     private final MapManager mapManager;
@@ -83,6 +86,10 @@ public class GamePanel {
 
     // Biến lưu tổng thời gian đã chơi thực tế (tính bằng giây)
     private int totalPlayedSeconds = 0;
+
+    // Đánh dấu ván chơi hiện tại là được RESUME (load) từ file save,
+    // để startGame() không reset điểm/level về 0.
+    private boolean isResumedGame = false;
 
     private final Canvas canvas;
     private final GraphicsContext gc;
@@ -275,7 +282,13 @@ public class GamePanel {
             scoreManager = new Score();
         }
 
-        scoreManager.startNewGame();
+        // QUAN TRỌNG: chỉ reset điểm/thống kê về 0 khi đây là ván chơi MỚI.
+        // Nếu là game được resume (load từ file save), scoreManager đã được
+        // đồng bộ điểm đúng ở loadGameState() -> KHÔNG được gọi startNewGame() ở đây,
+        // nếu không điểm đã load sẽ bị ghi đè về 0.
+        if (!isResumedGame) {
+            scoreManager.startNewGame();
+        }
         scoreManager.startNewLevel(playerLives);
 
         soundManager.playMusic("GameRun", true);
@@ -331,15 +344,18 @@ public class GamePanel {
         updateItems();
         checkBallStatus();
 
-        // kiểm tra có ai đó reset score kh
-        int scoreBefore = score;
-        int scoreManagerBefore = scoreManager.getScore();
+        if (DEBUG_SCORE) {
+            int scoreBefore = score;
+            int scoreManagerBefore = scoreManager.getScore();
 
-        updateHUD();
+            updateHUD();
 
-        if (score != scoreBefore || scoreManager.getScore() != scoreManagerBefore) {
-            System.out.println("   - score: " + scoreBefore + " → " + score);
-            System.out.println("   - scoreManager: " + scoreManagerBefore + " → " + scoreManager.getScore());
+            if (score != scoreBefore || scoreManager.getScore() != scoreManagerBefore) {
+                System.out.println("   - score: " + scoreBefore + " → " + score);
+                System.out.println("   - scoreManager: " + scoreManagerBefore + " → " + scoreManager.getScore());
+            }
+        } else {
+            updateHUD();
         }
     }
 
@@ -360,17 +376,11 @@ public class GamePanel {
         if (bricksBefore > bricksAfter) {
             int bricksBroken = bricksBefore - bricksAfter;
 
-            System.out.println("   - scoreManager.getScore(): " + scoreManager.getScore());
+            // Gọi scoreManager để tính điểm với combo cho từng viên gạch vỡ
+            scoreBrokenBricks(bricksBroken);
 
-            // gọi scoreManager để tính điểm với combo
-            for (int i = 0; i < bricksBroken; i++) {
-                scoreManager.brickBroken(); // Tăng combo mỗi viên
-            }
-
-            //cập nhật score từ scoreManager
+            // Đồng bộ score hiển thị từ scoreManager
             score = scoreManager.getScore();
-
-            System.out.println("   - score variable: " + score);
         }
 
         if (spawned != null) {
@@ -406,7 +416,7 @@ public class GamePanel {
     private void applyItem(Item item) {
         item.apply(paddle, ball);
 
-        // cập nhật buff/debuff lên ui
+        // Cập nhật buff/debuff lên UI + tính điểm tương ứng
         if (item.isBuff()) {
             if (item.getDurationSeconds() > 0) {
                 buffManager.activateBuff(item.getBuffName(), item.getDurationSeconds());
@@ -422,18 +432,6 @@ public class GamePanel {
         score = scoreManager.getScore();
     }
 
-    private boolean isGoodItem(String itemType) {
-        return itemType.contains("Life") ||
-                itemType.contains("Expand") ||
-                itemType.contains("Slow") ||
-                itemType.contains("Bigger");
-    }
-
-    private boolean isBadItem(String itemType) {
-        return itemType.contains("Shrink") ||
-                itemType.contains("Fast") ||
-                itemType.contains("Reverse");
-    }
     private void checkBallStatus() {
         if (ball.isOutOfScreen(canvas.getHeight())) {
             handleBallLost();
@@ -443,7 +441,7 @@ public class GamePanel {
     private void handleBallLost() {
         playerLives--;
 
-        // reset combo khi mất bóng
+        // Reset combo khi mất bóng
         scoreManager.resetCombo();
 
         if (playerLives > 0) {
@@ -462,23 +460,23 @@ public class GamePanel {
             }
         }
     }
+
     private void advanceToNextLevel() {
         soundManager.playSfx("LevelClear");
 
-        // tính điểm hoàn thành level
+        // Tính điểm hoàn thành level
         scoreManager.levelCompleted(playerLives);
         score = scoreManager.getScore();
 
         mapManager.nextLevel(bricks);
         resetForNextLevel();
 
-        // bắt đầu level mới
+        // Bắt đầu level mới
         scoreManager.startNewLevel(playerLives);
     }
 
     private void completeGame() {
         gameRunning = false;
-
         gameEnded = true;
 
         if (timer != null) {
@@ -494,7 +492,6 @@ public class GamePanel {
         GameSaveManager.deleteSave();
 
         showGameCompleteScreen();
-
     }
 
     private void render() {
@@ -522,8 +519,6 @@ public class GamePanel {
     }
 
     private void updateHUD() {
-        int currentCombo = scoreManager.getCombo();
-
         statusPanel.updateAll(
                 playerLives,
                 score,
@@ -588,6 +583,7 @@ public class GamePanel {
         box.getChildren().addAll(pauseLabel, infoLabel);
         return box;
     }
+
     private Label createPauseLabel() {
         Label label = new Label("GAME PAUSED");
         label.setFont(Font.font("System", FontWeight.BOLD, 40));
@@ -675,9 +671,6 @@ public class GamePanel {
     /**
      * Tải trạng thái game đã lưu
      */
-    /**
-     * Tải trạng thái game đã lưu
-     */
     private void loadGameState() {
         try {
             GameState state = GameSaveManager.loadGame();
@@ -732,12 +725,19 @@ public class GamePanel {
                 bricks.restoreBricksState(state.getBricksState());
             }
 
-            // Khởi tạo scoreManager
+            // Khởi tạo scoreManager VÀ đồng bộ điểm đã load vào nó.
+            // Nếu không set lại, scoreManager.getScore() sẽ trả về 0 dù "score" đã đúng,
+            // và lần vỡ gạch tiếp theo sẽ ghi đè "score" bằng con số sai (từ 0 cộng lên).
             scoreManager = new Score();
+            scoreManager.setScore(score);
+
+            // Đánh dấu đây là game được RESUME, để startGame() không reset điểm về 0
+            isResumedGame = true;
 
             items.clear();
 
             System.out.println("========== GAME LOADED ==========");
+            System.out.println("Score restored: " + score);
             System.out.println("Ball: (" + ball.getX() + ", " + ball.getY() + ") | Speed: (" + ball.getSpeedX() + ", " + ball.getSpeedY() + ")");
             System.out.println("Ball attached: " + ball.isAttachedToPaddle());
             System.out.println("=================================");
@@ -824,6 +824,7 @@ public class GamePanel {
         playerLives = INITIAL_LIVES;
         gameEnded = false;
         totalPlayedSeconds = 0;
+        isResumedGame = false; // để ván chơi mới tiếp theo không bị ảnh hưởng
     }
 
     public static void addLives(int n) {

@@ -16,6 +16,7 @@ import uet.ltnc.arkanoidgame.entities.data.GameSaveManager;
 import uet.ltnc.arkanoidgame.SoundManager;
 import uet.ltnc.arkanoidgame.Setting.SettingScreen;
 import uet.ltnc.arkanoidgame.HighScoreScreen;
+import uet.ltnc.arkanoidgame.ui.PlayerNameDialog;
 
 public class MainMenu extends StackPane {
 
@@ -95,13 +96,10 @@ public class MainMenu extends StackPane {
             }
         }
 
-        startBtn.setOnAction(e -> {
-            this.soundManager.stopMusic();
-            GameSaveManager.deleteSave();
-            GamePanel gamePanel = new GamePanel(stage, soundManager, false);
-            gamePanel.startGame();
-        });
+        // NEW GAME -> hiện dialog nhập tên trước, sau khi xác nhận mới thật sự tạo ván chơi mới
+        startBtn.setOnAction(e -> showPlayerNameDialogThenStartNewGame());
 
+        // CONTINUE -> không hỏi tên nữa, tên sẽ tự khôi phục từ file save (GamePanel lo việc này)
         continueBtn.setOnAction(e -> {
             if (GameSaveManager.hasSavedGame()) {
                 this.soundManager.stopMusic();
@@ -128,6 +126,25 @@ public class MainMenu extends StackPane {
 
         getChildren().addAll(background, menuColumn);
         setAlignment(Pos.CENTER);
+    }
+
+    /**
+     * Hiện dialog nhập tên người chơi đè lên menu. Sau khi người chơi xác nhận tên,
+     * xóa save cũ (nếu có) và bắt đầu ván chơi mới với tên vừa nhập.
+     */
+    private void showPlayerNameDialogThenStartNewGame() {
+        PlayerNameDialog nameDialog = new PlayerNameDialog(playerName -> {
+            // Gỡ dialog khỏi menu trước khi chuyển màn hình (dọn dẹp gọn gàng)
+            getChildren().remove(getChildren().size() - 1);
+
+            this.soundManager.stopMusic();
+            GameSaveManager.deleteSave();
+
+            GamePanel gamePanel = new GamePanel(stage, soundManager, false, playerName);
+            gamePanel.startGame();
+        });
+
+        getChildren().add(nameDialog);
     }
 
     private void updateContinueButtonState(Button continueBtn) {

@@ -7,6 +7,9 @@ import java.util.List;
  * Lớp lưu trữ trạng thái game để có thể save/load
  */
 public class GameState {
+    // Thông tin người chơi
+    private String playerName = "Player";
+
     // Thông tin game cơ bản
     private int score;
     private int lives;
@@ -89,6 +92,10 @@ public class GameState {
     }
 
     // === GETTERS ===
+
+    public String getPlayerName() {
+        return playerName;
+    }
 
     public int getScore() {
         return score;
@@ -179,6 +186,10 @@ public class GameState {
     }
 
     // === SETTERS ===
+
+    public void setPlayerName(String playerName) {
+        this.playerName = (playerName == null || playerName.trim().isEmpty()) ? "Player" : playerName.trim();
+    }
 
     public void setScore(int score) {
         this.score = score;
@@ -271,7 +282,8 @@ public class GameState {
     @Override
     public String toString() {
         return "GameState{" +
-                "score=" + score +
+                "playerName='" + playerName + '\'' +
+                ", score=" + score +
                 ", lives=" + lives +
                 ", level=" + currentLevel +
                 ", elapsedSeconds=" + elapsedSeconds +

@@ -19,6 +19,10 @@ public class GameSaveManager {
      */
     public static boolean saveGame(GameState state) {
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(SAVE_FILE))) {
+            // Ghi tên người chơi
+            writer.write("playerName" + DELIMITER + state.getPlayerName());
+            writer.newLine();
+
             // Ghi thông tin game cơ bản
             writer.write("score" + DELIMITER + state.getScore());
             writer.newLine();
@@ -125,6 +129,9 @@ public class GameSaveManager {
 
                 // Parse các giá trị
                 switch (key) {
+                    case "playerName":
+                        state.setPlayerName(value);
+                        break;
                     case "score":
                         state.setScore(Integer.parseInt(value));
                         break;
@@ -207,6 +214,7 @@ public class GameSaveManager {
             state.setBricksState(bricksList);
 
             System.out.println("✓ Game đã load thành công từ " + SAVE_FILE);
+            System.out.println("  - Player: " + state.getPlayerName());
             System.out.println("  - Đã load " + bricksList.size() + "/" + expectedBricksCount + " bricks");
             return state;
 

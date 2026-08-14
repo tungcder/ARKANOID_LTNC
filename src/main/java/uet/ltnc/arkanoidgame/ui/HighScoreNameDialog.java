@@ -17,11 +17,21 @@ import uet.ltnc.arkanoidgame.entities.data.HighScoreManager;
 import java.util.function.Consumer;
 
 /**
- * Dialog nhập tên người chơi khi đạt High Score Kỷ Lục Mới
+ * Dialog nhập tên người chơi khi đạt High Score Kỷ Lục Mới.
+ * Có thể truyền sẵn tên (initialPlayerName) đã nhập từ đầu ván chơi để điền sẵn vào ô nhập tên.
  */
 public class HighScoreNameDialog extends StackPane {
 
+    private static final int MAX_NAME_LENGTH = 15;
+
+    /**
+     * Overload cũ - giữ lại để tương thích ngược nếu nơi nào khác đang gọi không có initialPlayerName.
+     */
     public HighScoreNameDialog(int score, int timeInSeconds, int levelReached, boolean gameCompleted, Consumer<String> onSubmitted) {
+        this(score, timeInSeconds, levelReached, gameCompleted, "Player", onSubmitted);
+    }
+
+    public HighScoreNameDialog(int score, int timeInSeconds, int levelReached, boolean gameCompleted, String initialPlayerName, Consumer<String> onSubmitted) {
         setPrefSize(800, 600);
 
         // Dark dim overlay
@@ -54,11 +64,17 @@ public class HighScoreNameDialog extends StackPane {
         subTitle.setFont(Font.font("System", FontWeight.BOLD, 18));
         subTitle.setTextFill(Color.web("#00FFFF"));
 
-        Label promptLabel = new Label("Nhập tên người chơi của bạn:");
+        Label promptLabel = new Label("Xác nhận tên người chơi của bạn:");
         promptLabel.setFont(Font.font("System", FontWeight.SEMI_BOLD, 14));
         promptLabel.setTextFill(Color.WHITE);
 
-        TextField nameInput = new TextField("Player");
+        String prefill = (initialPlayerName == null || initialPlayerName.trim().isEmpty())
+                ? "Player" : initialPlayerName.trim();
+        if (prefill.length() > MAX_NAME_LENGTH) {
+            prefill = prefill.substring(0, MAX_NAME_LENGTH);
+        }
+
+        TextField nameInput = new TextField(prefill);
         nameInput.setMaxWidth(300);
         nameInput.setPrefHeight(45);
         nameInput.setAlignment(Pos.CENTER);
@@ -74,7 +90,7 @@ public class HighScoreNameDialog extends StackPane {
 
         // Limit length to 15 characters
         nameInput.textProperty().addListener((obs, oldText, newText) -> {
-            if (newText.length() > 15) {
+            if (newText.length() > MAX_NAME_LENGTH) {
                 nameInput.setText(oldText);
             }
         });

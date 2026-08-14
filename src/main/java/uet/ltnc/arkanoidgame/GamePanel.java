@@ -55,6 +55,8 @@ public class GamePanel {
     private static final String INITIAL_MAP_PATH = "/Levels/Map1.csv";
 
     private static final String GOLD_COLOR = "#FFD700";
+    private static final String DEFAULT_PLAYER_NAME = "Player";
+    private static final int MAX_PLAYER_NAME_LENGTH = 15;
 
     // Bật flag này khi cần soi lỗi liên quan tới điểm số, để log ra console.
     // Để false khi build bản chính thức cho gọn console.
@@ -78,6 +80,10 @@ public class GamePanel {
     private String debuffText = "None";
     private int buffTime = 0;
     private int debuffTime = 0;
+
+    // Tên người chơi cho ván này, được nhập từ đầu (màn hình PlayerNameDialog)
+    // hoặc khôi phục từ file save khi Continue.
+    private String playerName = DEFAULT_PLAYER_NAME;
 
     private long startTime = 0;
     private long pausedTime = 0;
@@ -105,16 +111,23 @@ public class GamePanel {
     // Biến để theo dõi xem game đã kết thúc chưa (game over hoặc complete)
     private boolean gameEnded = false;
 
-    // Constructor mặc định (không load save)
+    // Constructor mặc định (không load save, tên mặc định "Player")
     public GamePanel(Stage stage, SoundManager soundManager) {
-        this(stage, soundManager, false);
+        this(stage, soundManager, false, DEFAULT_PLAYER_NAME);
     }
 
-    // Constructor đầy đủ với tùy chọn load save
+    // Constructor với tùy chọn load save, tên mặc định "Player"
+    // (dùng cho nút CONTINUE - tên thật sự sẽ được khôi phục từ file save bên trong loadGameState())
     public GamePanel(Stage stage, SoundManager soundManager, boolean loadSavedGame) {
+        this(stage, soundManager, loadSavedGame, DEFAULT_PLAYER_NAME);
+    }
+
+    // Constructor đầy đủ: cho phép truyền tên người chơi đã nhập từ đầu ván chơi mới
+    public GamePanel(Stage stage, SoundManager soundManager, boolean loadSavedGame, String playerName) {
         this.stage = stage;
         this.mapManager = new MapManager();
         this.soundManager = soundManager;
+        this.playerName = sanitizePlayerName(playerName);
 
         this.canvas = new Canvas(CANVAS_WIDTH, CANVAS_HEIGHT);
         this.gc = canvas.getGraphicsContext2D();
@@ -143,12 +156,26 @@ public class GamePanel {
         setupWindowCloseHandler();
 
         if (loadSavedGame) {
-            loadGameState(); // Load game -> scoreManager được tạo + set điểm ở đây
+            loadGameState(); // Load game -> scoreManager + playerName được khôi phục từ file save ở đây
         } else {
-            initEntities(); // Game mới -> scoreManager = null
+            initEntities(); // Game mới -> scoreManager = null, playerName giữ nguyên giá trị vừa truyền vào
         }
 
         initInput();
+    }
+
+    private static String sanitizePlayerName(String name) {
+        if (name == null || name.trim().isEmpty()) {
+            return DEFAULT_PLAYER_NAME;
+        }
+        String cleaned = name.trim().replace(",", " ").replaceAll("\\s+", " ");
+        if (cleaned.isEmpty()) {
+            return DEFAULT_PLAYER_NAME;
+        }
+        if (cleaned.length() > MAX_PLAYER_NAME_LENGTH) {
+            cleaned = cleaned.substring(0, MAX_PLAYER_NAME_LENGTH);
+        }
+        return cleaned;
     }
 
     /**
@@ -156,11 +183,12 @@ public class GamePanel {
      */
     private void setupWindowCloseHandler() {
         stage.setOnCloseRequest(event -> {
-            // Nếu game đang chạy và chưa kết thúc, lưu trạng thái
+            // Nếu game đang chạy và chưa kết thúc, lưu trạng thái + lưu điểm vào High Score
             if (gameRunning && !gameEnded) {
                 // Tính toán thời gian đã chơi trước khi lưu
                 calculateTotalPlayedTime();
                 saveCurrentGameState();
+                saveHighScoreOnExit();
                 System.out.println("✓ Game đã được lưu tự động khi đóng cửa sổ");
             } else if (gameEnded) {
                 // Nếu game đã kết thúc (game over hoặc complete), xóa save
@@ -175,6 +203,22 @@ public class GamePanel {
 
             // Cho phép đóng cửa sổ hoàn toàn (không dùng event.consume())
         });
+    }
+
+    /**
+     * Lưu điểm hiện tại vào bảng High Score khi người chơi thoát GIỮA CHỪNG
+     * (chưa thua hết mạng, chưa phá hết level) - qua nút thoát hoặc đóng cửa sổ.
+     * Không hiện dialog nhập tên vì tên người chơi đã có sẵn từ đầu ván (playerName).
+     * Bỏ qua các ván có 0 điểm để tránh làm rác danh sách High Score với các lần
+     * thoát ngay sau khi vừa bắt đầu.
+     */
+    private void saveHighScoreOnExit() {
+        if (score <= 0) {
+            return;
+        }
+        int levelReached = mapManager.getCurrentLevelIndex();
+        HighScoreManager.saveHighScore(playerName, score, totalPlayedSeconds, levelReached, false);
+        System.out.println("✓ Đã lưu điểm giữa chừng vào High Score: " + playerName + " - " + score + " điểm");
     }
 
     private Image loadBackgroundImage() {
@@ -620,6 +664,9 @@ public class GamePanel {
         try {
             GameState state = new GameState();
 
+            // Lưu tên người chơi - để Continue lần sau giữ nguyên tên
+            state.setPlayerName(playerName);
+
             // Lưu thông tin cơ bản
             state.setScore(score);
             state.setLives(playerLives);
@@ -658,7 +705,7 @@ public class GamePanel {
 
             GameSaveManager.saveGame(state);
 
-            System.out.println("Score: " + score + " | Lives: " + playerLives + " | Time: " + totalPlayedSeconds + "s");
+            System.out.println("Player: " + playerName + " | Score: " + score + " | Lives: " + playerLives + " | Time: " + totalPlayedSeconds + "s");
             System.out.println("Paddle: (" + paddle.getX() + ", " + paddle.getY() + ") | Size: " + paddle.getWidth() + "x" + paddle.getHeight());
             System.out.println("Ball attached: " + ball.isAttachedToPaddle());
             System.out.println("================================");
@@ -678,6 +725,9 @@ public class GamePanel {
                 initEntities();
                 return;
             }
+
+            // Khôi phục tên người chơi đã dùng khi lưu game trước đó
+            playerName = sanitizePlayerName(state.getPlayerName());
 
             // Khôi phục thông tin cơ bản
             score = state.getScore();
@@ -737,6 +787,7 @@ public class GamePanel {
             items.clear();
 
             System.out.println("========== GAME LOADED ==========");
+            System.out.println("Player: " + playerName);
             System.out.println("Score restored: " + score);
             System.out.println("Ball: (" + ball.getX() + ", " + ball.getY() + ") | Speed: (" + ball.getSpeedX() + ", " + ball.getSpeedY() + ")");
             System.out.println("Ball attached: " + ball.isAttachedToPaddle());
@@ -749,10 +800,11 @@ public class GamePanel {
     }
 
     private void exitToMenu() {
-        // Lưu game trước khi thoát (nếu game đang chạy và chưa kết thúc)
+        // Lưu game trước khi thoát (nếu game đang chạy và chưa kết thúc) + lưu điểm vào High Score
         if (gameRunning && !gameEnded) {
             calculateTotalPlayedTime();
             saveCurrentGameState();
+            saveHighScoreOnExit();
         }
 
         if (timer != null) {
@@ -771,13 +823,13 @@ public class GamePanel {
         int levelReached = mapManager.getCurrentLevelIndex();
         if (HighScoreManager.isHighScore(score)) {
             uet.ltnc.arkanoidgame.ui.HighScoreNameDialog dialog = new uet.ltnc.arkanoidgame.ui.HighScoreNameDialog(
-                    score, elapsedSeconds, levelReached, false, name -> {
+                    score, elapsedSeconds, levelReached, false, playerName, name -> {
                 GameOverScreen gameOverScreen = new GameOverScreen(score, this::returnToMenu);
                 rootPane.getChildren().add(gameOverScreen);
             });
             rootPane.getChildren().add(dialog);
         } else {
-            HighScoreManager.saveHighScore("Player", score, elapsedSeconds, levelReached, false);
+            HighScoreManager.saveHighScore(playerName, score, elapsedSeconds, levelReached, false);
             GameOverScreen gameOverScreen = new GameOverScreen(score, this::returnToMenu);
             rootPane.getChildren().add(gameOverScreen);
         }
@@ -802,12 +854,12 @@ public class GamePanel {
 
         if (HighScoreManager.isHighScore(score)) {
             uet.ltnc.arkanoidgame.ui.HighScoreNameDialog dialog = new uet.ltnc.arkanoidgame.ui.HighScoreNameDialog(
-                    score, elapsedSeconds, totalLevels, true, name -> {
+                    score, elapsedSeconds, totalLevels, true, playerName, name -> {
                 showVictory.run();
             });
             rootPane.getChildren().add(dialog);
         } else {
-            HighScoreManager.saveHighScore("Player", score, elapsedSeconds, totalLevels, true);
+            HighScoreManager.saveHighScore(playerName, score, elapsedSeconds, totalLevels, true);
             showVictory.run();
         }
     }

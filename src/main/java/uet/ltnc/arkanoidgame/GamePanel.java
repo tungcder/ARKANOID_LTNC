@@ -338,7 +338,6 @@ public class GamePanel {
         updateHUD();
 
         if (score != scoreBefore || scoreManager.getScore() != scoreManagerBefore) {
-            System.out.println("⚠️ SCORE CHANGED IN UPDATE:");
             System.out.println("   - score: " + scoreBefore + " → " + score);
             System.out.println("   - scoreManager: " + scoreManagerBefore + " → " + scoreManager.getScore());
         }
@@ -361,17 +360,12 @@ public class GamePanel {
         if (bricksBefore > bricksAfter) {
             int bricksBroken = bricksBefore - bricksAfter;
 
-            System.out.println("🧱 BEFORE brick broken:");
-            System.out.println("   - score variable: " + score);
             System.out.println("   - scoreManager.getScore(): " + scoreManager.getScore());
 
             // gọi scoreManager để tính điểm với combo
             for (int i = 0; i < bricksBroken; i++) {
                 scoreManager.brickBroken(); // Tăng combo mỗi viên
             }
-
-            System.out.println("🧱 AFTER brick broken:");
-            System.out.println("   - scoreManager.getScore(): " + scoreManager.getScore());
 
             //cập nhật score từ scoreManager
             score = scoreManager.getScore();
@@ -460,37 +454,14 @@ public class GamePanel {
     }
 
     private void checkLevelProgression() {
-        boolean levelComplete = bricks.isLevelComplete();
-        int activeBricks = bricks.getActiveBrickCount();
-
-        //log chi tiết
-        System.out.println("==================================");
-        System.out.println(" CHECK LEVEL PROGRESSION:");
-        System.out.println("   - isLevelComplete(): " + levelComplete);
-        System.out.println("   - getActiveBrickCount(): " + activeBricks);
-        System.out.println("   - gameRunning: " + gameRunning);
-        System.out.println("   - gameEnded: " + gameEnded);
-        System.out.println("   - gamePaused: " + gamePaused);
-
-        if (levelComplete) {
-            System.out.println(" LEVEL COMPLETE DETECTED!");
-
-            boolean hasNext = mapManager.hasNextLevel();
-            System.out.println("   - hasNextLevel(): " + hasNext);
-
-            if (hasNext) {
-                System.out.println("➡ CALLING advanceToNextLevel()");
+        if (bricks.isLevelComplete()) {
+            if (mapManager.hasNextLevel()) {
                 advanceToNextLevel();
             } else {
-                System.out.println(" CALLING completeGame()");
                 completeGame();
             }
-        } else {
-            System.out.println(" Level NOT complete yet");
         }
-        System.out.println("==================================");
     }
-
     private void advanceToNextLevel() {
         soundManager.playSfx("LevelClear");
 
@@ -506,33 +477,24 @@ public class GamePanel {
     }
 
     private void completeGame() {
-        System.out.println(" COMPLETE GAME CALLED ");
-        System.out.println("   - Setting gameRunning = false");
         gameRunning = false;
 
-        System.out.println("   - Setting gameEnded = true");
         gameEnded = true;
 
         if (timer != null) {
-            System.out.println("   - Stopping timer");
             timer.stop();
         }
 
-        System.out.println("   - Calculating total played time");
         calculateTotalPlayedTime();
 
         if (scoreManager != null) {
-            System.out.println("   - Recording game end");
             scoreManager.recordGameEnd();
         }
 
-        System.out.println("   - Deleting save file");
         GameSaveManager.deleteSave();
 
-        System.out.println("   - Showing GameCompleteScreen");
         showGameCompleteScreen();
 
-        System.out.println(" COMPLETE GAME FINISHED ");
     }
 
     private void render() {
@@ -700,12 +662,9 @@ public class GamePanel {
 
             GameSaveManager.saveGame(state);
 
-            System.out.println("========== GAME SAVED ==========");
             System.out.println("Score: " + score + " | Lives: " + playerLives + " | Time: " + totalPlayedSeconds + "s");
-            System.out.println("Ball: (" + ball.getX() + ", " + ball.getY() + ") | Speed: (" + ball.getSpeedX() + ", " + ball.getSpeedY() + ")");
             System.out.println("Paddle: (" + paddle.getX() + ", " + paddle.getY() + ") | Size: " + paddle.getWidth() + "x" + paddle.getHeight());
             System.out.println("Ball attached: " + ball.isAttachedToPaddle());
-            System.out.println("Active bricks: " + bricks.getActiveBrickCount());
             System.out.println("================================");
         } catch (Exception e) {
             System.err.println(" Lỗi khi lưu game: " + e.getMessage());
@@ -723,7 +682,6 @@ public class GamePanel {
         try {
             GameState state = GameSaveManager.loadGame();
             if (state == null) {
-                System.out.println("⚠ Không tìm thấy save game, bắt đầu game mới");
                 initEntities();
                 return;
             }
@@ -780,11 +738,8 @@ public class GamePanel {
             items.clear();
 
             System.out.println("========== GAME LOADED ==========");
-            System.out.println("Score: " + score + " | Lives: " + playerLives + " | Level: " + state.getCurrentLevel() + " | Time: " + totalPlayedSeconds + "s");
             System.out.println("Ball: (" + ball.getX() + ", " + ball.getY() + ") | Speed: (" + ball.getSpeedX() + ", " + ball.getSpeedY() + ")");
-            System.out.println("Paddle: (" + paddle.getX() + ", " + paddle.getY() + ") | Size: " + paddle.getWidth() + "x" + paddle.getHeight());
             System.out.println("Ball attached: " + ball.isAttachedToPaddle());
-            System.out.println("Active bricks: " + bricks.getActiveBrickCount());
             System.out.println("=================================");
         } catch (Exception e) {
             System.err.println(" Lỗi khi load game: " + e.getMessage());
@@ -810,43 +765,51 @@ public class GamePanel {
         gameEnded = true;
         GameSaveManager.deleteSave();
 
-        // lưu high score khi game over
-        HighScoreManager.saveHighScore(
-                score,
-                elapsedSeconds,
-                mapManager.getCurrentLevelIndex(),
-                false // game chưa hoàn thành
-        );
-
         soundManager.stopMusic();
         soundManager.playSfx("GameOver");
 
-        GameOverScreen gameOverScreen = new GameOverScreen(score, this::returnToMenu);
-        rootPane.getChildren().add(gameOverScreen);
+        int levelReached = mapManager.getCurrentLevelIndex();
+        if (HighScoreManager.isHighScore(score)) {
+            uet.ltnc.arkanoidgame.ui.HighScoreNameDialog dialog = new uet.ltnc.arkanoidgame.ui.HighScoreNameDialog(
+                    score, elapsedSeconds, levelReached, false, name -> {
+                GameOverScreen gameOverScreen = new GameOverScreen(score, this::returnToMenu);
+                rootPane.getChildren().add(gameOverScreen);
+            });
+            rootPane.getChildren().add(dialog);
+        } else {
+            HighScoreManager.saveHighScore("Player", score, elapsedSeconds, levelReached, false);
+            GameOverScreen gameOverScreen = new GameOverScreen(score, this::returnToMenu);
+            rootPane.getChildren().add(gameOverScreen);
+        }
     }
 
     private void showGameCompleteScreen() {
-        System.out.println(" SHOW GAME COMPLETE SCREEN CALLED");
-
         gameEnded = true;
 
         soundManager.stopMusic();
         soundManager.playMusic("GameClear", false);
 
-        System.out.println("   - Creating GameCompleteScreen with score: " + score + ", time: " + elapsedSeconds);
-        GameCompleteScreen completeScreen = new GameCompleteScreen(
-                score,
-                elapsedSeconds,
-                this::returnToMenu
-        );
+        int totalLevels = mapManager.getCurrentLevelIndex() + 1;
+        Runnable showVictory = () -> {
+            GameCompleteScreen completeScreen = new GameCompleteScreen(
+                    score,
+                    elapsedSeconds,
+                    this::returnToMenu
+            );
+            rootPane.getChildren().clear();
+            rootPane.getChildren().add(completeScreen);
+        };
 
-        System.out.println("   - Clearing rootPane children");
-        rootPane.getChildren().clear();
-
-        System.out.println("   - Adding completeScreen to rootPane");
-        rootPane.getChildren().add(completeScreen);
-
-        System.out.println(" SHOW GAME COMPLETE SCREEN FINISHED");
+        if (HighScoreManager.isHighScore(score)) {
+            uet.ltnc.arkanoidgame.ui.HighScoreNameDialog dialog = new uet.ltnc.arkanoidgame.ui.HighScoreNameDialog(
+                    score, elapsedSeconds, totalLevels, true, name -> {
+                showVictory.run();
+            });
+            rootPane.getChildren().add(dialog);
+        } else {
+            HighScoreManager.saveHighScore("Player", score, elapsedSeconds, totalLevels, true);
+            showVictory.run();
+        }
     }
 
     private void returnToMenu() {
@@ -868,6 +831,5 @@ public class GamePanel {
         if (playerLives > MAX_LIVES) {
             playerLives = MAX_LIVES;
         }
-        System.out.println("Player gained " + n + " life(s)! Current lives: " + playerLives);
     }
 }

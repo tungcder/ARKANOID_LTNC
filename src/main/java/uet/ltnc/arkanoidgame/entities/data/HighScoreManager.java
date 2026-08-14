@@ -9,11 +9,11 @@ public class HighScoreManager {
     private static final String HIGH_SCORE_FILE = "highscores.txt";
     private static final int MAX_HIGH_SCORES = 10;
 
-    public static void saveHighScore(int score, int timeInSeconds, int levelsCompleted, boolean gameCompleted) {
+    public static void saveHighScore(String playerName, int score, int timeInSeconds, int levelsCompleted, boolean gameCompleted) {
         try {
             List<HighScore> scores = loadHighScores();
 
-            HighScore newScore = new HighScore(score, timeInSeconds, levelsCompleted, gameCompleted);
+            HighScore newScore = new HighScore(playerName, score, timeInSeconds, levelsCompleted, gameCompleted);
             scores.add(newScore);
 
             Collections.sort(scores);
@@ -24,11 +24,15 @@ public class HighScoreManager {
 
             saveToFile(scores);
 
-            System.out.println("✅ Đã lưu high score: " + score + " điểm");
+            System.out.println("✅ Đã lưu high score (" + newScore.getPlayerName() + "): " + score + " điểm");
         } catch (Exception e) {
             System.err.println("❌ Lỗi khi lưu high score: " + e.getMessage());
             e.printStackTrace();
         }
+    }
+
+    public static void saveHighScore(int score, int timeInSeconds, int levelsCompleted, boolean gameCompleted) {
+        saveHighScore("Player", score, timeInSeconds, levelsCompleted, gameCompleted);
     }
 
     public static List<HighScore> loadHighScores() {

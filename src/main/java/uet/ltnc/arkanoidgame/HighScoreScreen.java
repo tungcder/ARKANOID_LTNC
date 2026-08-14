@@ -85,7 +85,7 @@ public class HighScoreScreen extends StackPane {
     }
 
     private HBox createHeaderRow() {
-        HBox header = new HBox(10);
+        HBox header = new HBox(8);
         header.setAlignment(Pos.CENTER);
         header.setPadding(new Insets(10));
         header.setStyle(
@@ -94,14 +94,15 @@ public class HighScoreScreen extends StackPane {
                         "-fx-border-width: 0 0 2 0;"
         );
 
-        Label rank = createHeaderLabel("#", 50);
-        Label score = createHeaderLabel("ĐIỂM", 120);
-        Label time = createHeaderLabel("THỜI GIAN", 120);
-        Label level = createHeaderLabel("MÀN", 100);
-        Label status = createHeaderLabel("TRẠNG THÁI", 150);
-        Label date = createHeaderLabel("NGÀY", 200);
+        Label rank = createHeaderLabel("#", 35);
+        Label name = createHeaderLabel("TÊN", 120);
+        Label score = createHeaderLabel("ĐIỂM", 90);
+        Label time = createHeaderLabel("THỜI GIAN", 90);
+        Label level = createHeaderLabel("MÀN", 55);
+        Label status = createHeaderLabel("TRẠNG THÁI", 110);
+        Label date = createHeaderLabel("NGÀY", 150);
 
-        header.getChildren().addAll(rank, score, time, level, status, date);
+        header.getChildren().addAll(rank, name, score, time, level, status, date);
         return header;
     }
 
@@ -115,9 +116,9 @@ public class HighScoreScreen extends StackPane {
     }
 
     private HBox createScoreRow(int rank, HighScore highScore) {
-        HBox row = new HBox(10);
+        HBox row = new HBox(8);
         row.setAlignment(Pos.CENTER);
-        row.setPadding(new Insets(12));
+        row.setPadding(new Insets(10));
 
         String bgColor;
         String textColor;
@@ -143,23 +144,26 @@ public class HighScoreScreen extends StackPane {
                         "-fx-border-radius: 8;"
         );
 
-        Label rankLabel = createDataLabel(String.valueOf(rank), 50, textColor);
-        rankLabel.setFont(Font.font("System", FontWeight.BOLD, 18));
+        Label rankLabel = createDataLabel(String.valueOf(rank), 35, textColor);
+        rankLabel.setFont(Font.font("System", FontWeight.BOLD, 16));
 
-        Label scoreLabel = createDataLabel(String.valueOf(highScore.getScore()), 120, textColor);
-        scoreLabel.setFont(Font.font("System", FontWeight.BOLD, 20));
+        Label nameLabel = createDataLabel(highScore.getPlayerName(), 120, textColor);
+        nameLabel.setFont(Font.font("System", FontWeight.BOLD, 15));
 
-        Label timeLabel = createDataLabel(highScore.getFormattedTime(), 120, "#FFFFFF");
-        Label levelLabel = createDataLabel(String.valueOf(highScore.getLevelsCompleted()), 100, "#FFFFFF");
+        Label scoreLabel = createDataLabel(String.valueOf(highScore.getScore()), 90, textColor);
+        scoreLabel.setFont(Font.font("System", FontWeight.BOLD, 18));
+
+        Label timeLabel = createDataLabel(highScore.getFormattedTime(), 90, "#FFFFFF");
+        Label levelLabel = createDataLabel(String.valueOf(highScore.getLevelsCompleted()), 55, "#FFFFFF");
 
         String statusText = highScore.isGameCompleted() ? "✓ Hoàn thành" : "✗ Chưa xong";
         String statusColor = highScore.isGameCompleted() ? "#00FF00" : "#FF6666";
-        Label statusLabel = createDataLabel(statusText, 150, statusColor);
+        Label statusLabel = createDataLabel(statusText, 110, statusColor);
 
-        Label dateLabel = createDataLabel(highScore.getFormattedDate(), 200, "#AAAAAA");
+        Label dateLabel = createDataLabel(highScore.getFormattedDate(), 150, "#AAAAAA");
         dateLabel.setFont(Font.font("System", 11));
 
-        row.getChildren().addAll(rankLabel, scoreLabel, timeLabel, levelLabel, statusLabel, dateLabel);
+        row.getChildren().addAll(rankLabel, nameLabel, scoreLabel, timeLabel, levelLabel, statusLabel, dateLabel);
 
         return row;
     }

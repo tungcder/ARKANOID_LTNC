@@ -215,22 +215,35 @@ public class Ball {
         prevX = x;
         prevY = y;
 
-        x += dx;
-        y += dy;
+        // Sub-stepping để tránh tunneling khi bóng di chuyển nhanh
+        double dist = Math.hypot(dx, dy);
+        int steps = Math.max(1, (int) Math.ceil(dist / 3.0));
+
+        double subDx = dx / steps;
+        double subDy = dy / steps;
 
         double d = radius * 2;
-        double cx = x + radius, cy = y + radius;
 
-        if (cx - radius <= 0) {
-            x = 0;
-            dx = Math.abs(dx) * RESTITUTION;
-        } else if (cx + radius >= canvasW) {
-            x = canvasW - d;
-            dx = -Math.abs(dx) * RESTITUTION;
-        }
-        if (cy - radius <= 0) {
-            y = 0;
-            dy = Math.abs(dy) * RESTITUTION;
+        for (int i = 0; i < steps; i++) {
+            x += subDx;
+            y += subDy;
+
+            double cx = x + radius, cy = y + radius;
+
+            if (cx - radius <= 0) {
+                x = 0;
+                dx = Math.abs(dx) * RESTITUTION;
+                subDx = dx / steps;
+            } else if (cx + radius >= canvasW) {
+                x = canvasW - d;
+                dx = -Math.abs(dx) * RESTITUTION;
+                subDx = dx / steps;
+            }
+            if (cy - radius <= 0) {
+                y = 0;
+                dy = Math.abs(dy) * RESTITUTION;
+                subDy = dy / steps;
+            }
         }
 
         animate();
@@ -264,13 +277,24 @@ public class Ball {
         soundManager.playSfx("PaddleHit");
         paddle.handleHit();
 
-        y = ry - 2 * radius;
-        dy = -Math.abs(dy) * RESTITUTION;
+        // Đẩy bóng lên trên paddle để tránh kẹt trong paddle
+        y = ry - 2 * radius - 0.5;
 
+        // Tính góc nảy dựa trên điểm nảy tương đối so với tâm paddle [-1.0, 1.0]
         double hitOffset = (cx - (rx + rw / 2.0)) / (rw / 2.0);
         hitOffset = clamp(hitOffset, -1.0, 1.0);
 
-        dx = hitOffset * MAX_SPEED;
+        // Góc nảy tối đa 60 độ (PI / 3)
+        double maxBounceAngle = Math.PI / 3.0;
+        double bounceAngle = hitOffset * maxBounceAngle;
+
+        // Bảo tồn vận tốc tổng hợp (speed magnitude)
+        double currentSpeed = Math.hypot(dx, dy);
+        double targetSpeed = Math.max(currentSpeed, baseSpeed * speedMultiplier);
+
+        dx = targetSpeed * Math.sin(bounceAngle);
+        dy = -targetSpeed * Math.cos(bounceAngle); // Luôn bay hướng lên trên
+
         clampSpeed();
     }
 
@@ -294,20 +318,23 @@ public class Ball {
             double impactX = clamp(cx, rx, rx + rw);
             double impactY = clamp(cy, ry, ry + rh);
 
+            double margin = 0.5;
             switch (side) {
-                case TOP -> { y = ry - 2 * radius; reflectByNormal(0, -1); }
-                case BOTTOM -> { y = ry + rh; reflectByNormal(0, 1); }
-                case LEFT -> { x = rx - 2 * radius; reflectByNormal(-1, 0); }
-                case RIGHT -> { x = rx + rw; reflectByNormal(1, 0); }
+                case TOP -> { y = ry - 2 * radius - margin; reflectByNormal(0, -1); }
+                case BOTTOM -> { y = ry + rh + margin; reflectByNormal(0, 1); }
+                case LEFT -> { x = rx - 2 * radius - margin; reflectByNormal(-1, 0); }
+                case RIGHT -> { x = rx + rw + margin; reflectByNormal(1, 0); }
                 default -> {
                     double nx = clamp(cx, rx, rx + rw);
                     double ny = clamp(cy, ry, ry + rh);
-                    reflectByNormal(cx - nx, cy - ny);
-                    double nlen = Math.hypot(cx - nx, cy - ny);
+                    double dirX = cx - nx;
+                    double dirY = cy - ny;
+                    reflectByNormal(dirX, dirY);
+                    double nlen = Math.hypot(dirX, dirY);
                     if (nlen > 0) {
-                        double push = (radius - nlen) + 0.1;
-                        x += (cx - nx) / nlen * push;
-                        y += (cy - ny) / nlen * push;
+                        double push = (radius - nlen) + 0.5;
+                        x += (dirX / nlen) * push;
+                        y += (dirY / nlen) * push;
                     }
                 }
             }

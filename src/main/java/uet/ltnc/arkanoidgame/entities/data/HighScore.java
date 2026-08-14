@@ -5,15 +5,17 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 public class HighScore implements Serializable, Comparable<HighScore> {
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 2L;
 
+    private String playerName;
     private int score;
     private int timeInSeconds;
     private String dateTime;
     private int levelsCompleted;
     private boolean gameCompleted;
 
-    public HighScore(int score, int timeInSeconds, int levelsCompleted, boolean gameCompleted) {
+    public HighScore(String playerName, int score, int timeInSeconds, int levelsCompleted, boolean gameCompleted) {
+        this.playerName = (playerName == null || playerName.trim().isEmpty()) ? "Player" : playerName.trim();
         this.score = score;
         this.timeInSeconds = timeInSeconds;
         this.dateTime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"));
@@ -21,12 +23,25 @@ public class HighScore implements Serializable, Comparable<HighScore> {
         this.gameCompleted = gameCompleted;
     }
 
-    public HighScore(int score, int timeInSeconds, String dateTime, int levelsCompleted, boolean gameCompleted) {
+    public HighScore(int score, int timeInSeconds, int levelsCompleted, boolean gameCompleted) {
+        this("Player", score, timeInSeconds, levelsCompleted, gameCompleted);
+    }
+
+    public HighScore(String playerName, int score, int timeInSeconds, String dateTime, int levelsCompleted, boolean gameCompleted) {
+        this.playerName = (playerName == null || playerName.trim().isEmpty()) ? "Player" : playerName.trim();
         this.score = score;
         this.timeInSeconds = timeInSeconds;
         this.dateTime = dateTime;
         this.levelsCompleted = levelsCompleted;
         this.gameCompleted = gameCompleted;
+    }
+
+    public HighScore(int score, int timeInSeconds, String dateTime, int levelsCompleted, boolean gameCompleted) {
+        this("Player", score, timeInSeconds, dateTime, levelsCompleted, gameCompleted);
+    }
+
+    public String getPlayerName() {
+        return playerName;
     }
 
     public int getScore() {
@@ -65,14 +80,25 @@ public class HighScore implements Serializable, Comparable<HighScore> {
     }
 
     public String toFileLine() {
-        return score + "," + timeInSeconds + "," + dateTime + "," + levelsCompleted + "," + gameCompleted;
+        return playerName + "," + score + "," + timeInSeconds + "," + dateTime + "," + levelsCompleted + "," + gameCompleted;
     }
 
     public static HighScore fromFileLine(String line) {
         try {
             String[] parts = line.split(",");
-            if (parts.length == 5) {
+            if (parts.length == 6) {
                 return new HighScore(
+                        parts[0],
+                        Integer.parseInt(parts[1]),
+                        Integer.parseInt(parts[2]),
+                        parts[3],
+                        Integer.parseInt(parts[4]),
+                        Boolean.parseBoolean(parts[5])
+                );
+            } else if (parts.length == 5) {
+                // Compatibility for legacy format without playerName
+                return new HighScore(
+                        "Player",
                         Integer.parseInt(parts[0]),
                         Integer.parseInt(parts[1]),
                         parts[2],
@@ -81,8 +107,8 @@ public class HighScore implements Serializable, Comparable<HighScore> {
                 );
             }
         } catch (Exception e) {
-            System.err.println("Lỗi đọc dòng: " + line);
+            System.err.println("Lỗi đọc dòng highscore: " + line);
         }
         return null;
     }
-}
+}

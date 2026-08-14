@@ -90,19 +90,13 @@ public class BrickGrid {
 
     public boolean isLevelComplete() {
         int breakableLeft = 0;
-        int unbreakableLeft = 0;
 
         for (Brick brick : bricks) {
-            if (!brick.isDestroyed()) {
-                if (brick.isBreakable()) {
-                    breakableLeft++;
-                } else {
-                    unbreakableLeft++;
-                }
+            if (!brick.isDestroyed() && brick.isBreakable()) {
+                breakableLeft++;
             }
         }
 
-        System.out.println("Breakable bricks: " + breakableLeft + " | Unbreakable: " + unbreakableLeft);
         return breakableLeft == 0;
     }
 

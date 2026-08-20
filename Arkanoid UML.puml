@@ -1,0 +1,970 @@
+@startuml
+class uet.ltnc.arkanoidgame.entities.menu.MainMenu {
+- {static} String FONT_SIZE
+- {static} String BUTTON_RADIUS
+- {static} String BUTTON_PADDING
+- {static} String NORMAL_STYLE
+- {static} String HOVER_STYLE
+- {static} String DISABLED_STYLE
+~ DropShadow neonShadow
+- Stage stage
+- SoundManager soundManager
+- void showPlayerNameDialogThenStartNewGame()
+- void updateContinueButtonState(Button)
+- Button createStyledButton(String,DropShadow)
+- void showHighScoreScreen()
++ Scene createScene(Stage)
+}
+
+
+class uet.ltnc.arkanoidgame.GameOverScreen {
+- {static} int SCREEN_WIDTH
+- {static} int SCREEN_HEIGHT
+- {static} String RED_COLOR
+- {static} String DARK_RED
+- {static} String LIGHT_RED
+- {static} String HOVER_RED_GRADIENT
+- {static} String NORMAL_RED_GRADIENT
+- {static} String BG_IMAGE_PATH
+- {static} String FONT_PATH
+- {static} double TITLE_FADE_DURATION
+- {static} double TITLE_SCALE_DURATION
+- {static} double SCORE_DELAY
+- {static} double SCORE_DURATION
+- {static} double MESSAGE_DELAY
+- {static} double BUTTON_DELAY
+- int finalScore
+- Runnable onBackToMenu
+- void setupUI()
+- void setupBackground()
+- void addBackgroundImage()
+- void setFallbackBackground()
+- void addOverlay()
+- VBox createContentBox()
+- Label createGameOverTitle()
+- Rectangle createDecorativeLine()
+- VBox createScoreBox()
+- String createScoreBoxStyle()
+- Label createScoreTitle()
+- Label createScoreValue()
+- Label createMessage()
+- Button createBackButton()
+- void setupButtonInteractions(Button)
+- void applyButtonStyle(Button,boolean)
+- void playAnimations(Label,VBox,Label,Button)
+- void playTitleAnimation(Label)
+- void playScoreAnimation(VBox)
+- void playFadeAnimation(javafx.scene.Node,double,double)
+- FadeTransition createFadeTransition(javafx.scene.Node,double,double)
+- ScaleTransition createScaleTransition(javafx.scene.Node,double,double,double)
+- Font loadCustomFont(String,int)
+- Font createFallbackFont(int)
+- DropShadow createGlow(String,double,double)
+}
+
+
+class uet.ltnc.arkanoidgame.entities.paddle.Paddle {
+- double x
+- double speed
+- Set<KeyCode> keys
+- {static} double CANVAS_WIDTH
+- List<Image> paddleFrames
+- int currentFrameIndex
+- int animationCounter
+- {static} int ANIMATION_DELAY
+- boolean reverseDirection
+- double baseWidth
+- double sizeMultiplier
+- Timeline sizeBuffTimer
++ void update()
++ void handleMouseMove(MouseEvent)
++ void handleHit()
++ void render(GraphicsContext)
++ void applySizeBuff(double,double)
++ void setReverseDirection(boolean)
++ void addKey(KeyCode)
++ void removeKey(KeyCode)
++ double getX()
++ double getY()
++ double getWidth()
++ double getHeight()
++ void setWidth(double)
++ void setHeight(double)
+}
+
+
+class uet.ltnc.arkanoidgame.entities.brick.BrickMove {
+- {static} String IMAGE_PATH
+- {static} double SPEED
+- int direction
+- double minX
+- double maxX
+- boolean rangeInitialized
++ void initMovementRange(BrickGrid)
++ void update()
++ void reset()
++ boolean hit()
++ boolean isBreakable()
+# Color getFallbackColor()
+}
+
+
+class uet.ltnc.arkanoidgame.entities.data.GameState {
+- String playerName
+- int score
+- int lives
+- int elapsedSeconds
+- int currentLevel
+- double paddleX
+- double paddleY
+- int paddleWidth
+- int paddleHeight
+- double ballX
+- double ballY
+- double ballSpeedX
+- double ballSpeedY
+- boolean ballAttached
+- int ballRadius
+- String buffText
+- int buffTime
+- String debuffText
+- int debuffTime
+- String currentMapPath
+- int activeBrickCount
+- List<BrickData> bricksState
+- long savedTimestamp
++ String getPlayerName()
++ int getScore()
++ int getLives()
++ int getElapsedSeconds()
++ int getCurrentLevel()
++ double getPaddleX()
++ double getPaddleY()
++ int getPaddleWidth()
++ int getPaddleHeight()
++ double getBallX()
++ double getBallY()
++ double getBallSpeedX()
++ double getBallSpeedY()
++ boolean isBallAttached()
++ int getBallRadius()
++ String getBuffText()
++ int getBuffTime()
++ String getDebuffText()
++ int getDebuffTime()
++ String getCurrentMapPath()
++ int getActiveBrickCount()
++ long getSavedTimestamp()
++ List<BrickData> getBricksState()
++ void setPlayerName(String)
++ void setScore(int)
++ void setLives(int)
++ void setElapsedSeconds(int)
++ void setCurrentLevel(int)
++ void setPaddleX(double)
++ void setPaddleY(double)
++ void setPaddleWidth(int)
++ void setPaddleHeight(int)
++ void setBallX(double)
++ void setBallY(double)
++ void setBallSpeedX(double)
++ void setBallSpeedY(double)
++ void setBallAttached(boolean)
++ void setBallRadius(int)
++ void setBuffText(String)
++ void setBuffTime(int)
++ void setDebuffText(String)
++ void setDebuffTime(int)
++ void setCurrentMapPath(String)
++ void setActiveBrickCount(int)
++ void setSavedTimestamp(long)
++ void setBricksState(List<BrickData>)
++ String toString()
+}
+
+
+class uet.ltnc.arkanoidgame.entities.data.GameState$BrickData {
+- int row
+- int col
+- int health
+- boolean active
++ int getRow()
++ int getCol()
++ int getHealth()
++ boolean isActive()
++ void setRow(int)
++ void setCol(int)
++ void setHealth(int)
++ void setActive(boolean)
++ String toString()
++ {static} BrickData fromString(String)
+}
+
+
+class uet.ltnc.arkanoidgame.entities.brick.BrickStrong {
+# Color getFallbackColor()
+}
+
+class uet.ltnc.arkanoidgame.entities.ball.Ball {
+- {static} double CANVAS_W
+- {static} double CANVAS_H
+- {static} int FRAME_COUNT
+- {static} double FRAME_STEP
+- {static} double RESTITUTION
+- {static} double MAX_SPEED
+- {static} double MIN_ABS_DY
+- {static} double EPS
+- double x
+- double radius
+- double dx
+- double prevX
+- List<Image> frames
+- int currentFrame
+- boolean attachedToPaddle
+- double speedMultiplier
+- double baseSpeed
+- Timeline speedBuffTimer
+- double sizeMultiplier
+- double baseRadius
+- Timeline sizeBuffTimer
+- boolean explosive
+- double explosionRadius
+- Timeline explosiveTimer
+- SoundManager soundManager
+- void loadFrames()
++ void attachToPaddle(Paddle)
++ void releaseFromPaddle()
++ boolean isAttachedToPaddle()
++ void applySpeedBuff(double,double)
+- void renormalizeSpeed()
++ void applySizeBuff(double,double)
++ void applyExplosiveBuff(double,double)
++ boolean isExplosive()
++ double getExplosionRadius()
++ void update(Paddle,double,double)
++ void update(Paddle)
++ void update(double,double)
++ void update()
++ boolean isOutOfScreen(double)
++ void checkCollision(Paddle)
++ Item checkCollision(BrickGrid)
++ void render(GraphicsContext)
+- void animate()
+- void reflectByNormal(double,double)
+- void clampSpeed()
+- {static} boolean circleIntersectsAABB(double,double,double,double,double,double,double)
+- {static} CollisionSide resolveSideUsingPrevious(double,double,double,double,double,double,double,double,double)
+- {static} double clamp(double,double,double)
+- Item explodeAt(BrickGrid,double,double)
++ double getX()
++ double getY()
++ void setX(double)
++ void setY(double)
++ double getRadius()
++ void setRadius(double)
++ void setSpeedMultiplier(double)
++ double getSpeedX()
++ double getSpeedY()
++ void setSpeedX(double)
++ void setSpeedY(double)
++ double getDx()
++ double getDy()
++ void setDx(double)
++ void setDy(double)
+}
+
+
+enum uet.ltnc.arkanoidgame.entities.ball.CollisionSide {
++  NONE
++  TOP
++  BOTTOM
++  LEFT
++  RIGHT
+}
+
+class uet.ltnc.arkanoidgame.entities.data.Score {
+- int totalScore
+- int combo
+- int maxCombo
+- int bricksDestroyed
+- {static} int NORMAL_BRICK_SCORE
+- {static} int MEDIUM_BRICK_SCORE
+- {static} int STRONG_BRICK_SCORE
+- {static} int MOVE_BRICK_SCORE
+- {static} int POWERUP_BRICK_SCORE
+- {static} int COMBO_THRESHOLD
+- {static} int COMBO_BONUS_PER_BRICK
+- {static} int MAX_COMBO_MULTIPLIER
+- {static} int ITEM_COLLECTED_SCORE
+- {static} int GOOD_ITEM_BONUS
+- {static} int BAD_ITEM_PENALTY
+- {static} int LEVEL_COMPLETE_BONUS
+- {static} int SPEED_BONUS_THRESHOLD_1
+- {static} int SPEED_BONUS_1
+- {static} int SPEED_BONUS_THRESHOLD_2
+- {static} int SPEED_BONUS_2
+- {static} int NO_DEATH_BONUS
+- long levelStartTime
+- boolean levelStarted
+- int livesAtStart
++ void startNewGame()
++ void startNewLevel(int)
++ void brickBroken(String)
++ void brickBroken()
+- int getBaseScoreForBrickType(String)
+- int calculateComboBonus()
++ void resetCombo()
++ void itemCollected()
++ void goodItemCollected()
++ void badItemCollected()
++ void levelCompleted(int)
+- int calculateTimeBonus(long)
++ void recordGameEnd()
++ int getScore()
++ int getCombo()
++ int getMaxCombo()
++ int getBricksDestroyed()
++ void setScore(int)
++ void setCombo(int)
++ void setMaxCombo(int)
++ void setBricksDestroyed(int)
+}
+
+
+class uet.ltnc.arkanoidgame.entities.brick.BrickWeak {
+- {static} String IMAGE_PATH
+# Color getFallbackColor()
+}
+
+
+class uet.ltnc.arkanoidgame.SoundManager {
+- {static} String SOUND_DIR
+- HashMap<String,AudioClip> sfxCache
+- HashMap<String,String> musicPaths
+- MediaPlayer currentMusicPlayer
+- String currentMusicName
+- double masterVolume
+- double musicVolume
+- double sfxVolume
+- void loadAllSounds()
+- void loadSfx(String,String)
++ void playSfx(String)
+- void loadMusic(String,String)
++ void playMusic(String,boolean)
++ void stopMusic()
+- void updateCurrentMusicVolume()
++ void setMasterVolume(double)
++ void setMusicVolume(double)
++ void setSfxVolume(double)
++ double getMasterVolume()
++ double getMusicVolume()
++ double getSfxVolume()
+- double clamp(double,double,double)
+}
+
+
+class uet.ltnc.arkanoidgame.HighScoreScreen {
+- {static} String GOLD_COLOR
+- {static} String CYAN_COLOR
+- Runnable onBack
+- void setupUI()
+- Label createTitle()
+- VBox createScoresList()
+- HBox createHeaderRow()
+- Label createHeaderLabel(String,double)
+- HBox createScoreRow(int,HighScore)
+- Label createDataLabel(String,double,String)
+- Button createBackButton()
+}
+
+
+abstract class uet.ltnc.arkanoidgame.entities.brick.Brick {
+# double x
+# double width
+# int hitsRequired
+# int currentHits
+# boolean destroyed
+# boolean breakable
+# Image[] damageImages
+# Image image
+# Item powerup
+# {static} Image loadImage(String)
++ boolean hit()
+# void onDestroyed()
++ void render(GraphicsContext)
+# {abstract}Color getFallbackColor()
++ void update()
++ boolean isDestroyed()
++ double getX()
++ double getY()
++ double getWidth()
++ double getHeight()
++ int getHitsRequired()
++ boolean isBreakable()
++ void setBreakable(boolean)
++ Item getPowerup()
++ void setPowerup(Item)
++ int getHealth()
++ void setHealth(int)
++ void destroy()
++ int getCurrentHits()
++ void setCurrentHits(int)
+}
+
+
+class uet.ltnc.arkanoidgame.entities.item.Buff.Buff_ExplosiveBall {
+- {static} String IMAGE_PATH
+- {static} double EXPLOSION_RADIUS
+- {static} double DURATION_SECONDS
++ void apply(Paddle,Ball)
++ String getBuffName()
++ int getDurationSeconds()
++ boolean isBuff()
+}
+
+
+class uet.ltnc.arkanoidgame.entities.map.MapLoader {
+- {static} int[][] DEFAULT_MAP
++ {static} int[][] loadMap(String)
+}
+
+
+class uet.ltnc.arkanoidgame.ArkanoidGame {
++ {static} SoundManager soundManager
++ void start(Stage)
++ {static} void main(String[])
+}
+
+
+class uet.ltnc.arkanoidgame.GameConstants {
++ {static} int WIDTH
++ {static} int HEIGHT
+}
+
+abstract class uet.ltnc.arkanoidgame.entities.item.Item {
+# double x
+# double fallSpeed
+# Image image
++ void update()
++ void render(GraphicsContext)
++ boolean collidesWith(Paddle)
++ {abstract}void apply(Paddle,Ball)
++ {abstract}String getBuffName()
++ {abstract}int getDurationSeconds()
++ {abstract}boolean isBuff()
++ double getY()
+}
+
+
+class uet.ltnc.arkanoidgame.entities.brick.BrickUnbreakable {
+- {static} String IMAGE_PATH
++ boolean hit()
++ boolean isBreakable()
+# Color getFallbackColor()
+}
+
+
+class uet.ltnc.arkanoidgame.entities.item.DeBuff.DeBuff_SmallerPaddle {
+- {static} String IMAGE_PATH
+- {static} double SIZE_DECREASE
+- {static} double DEBUFF_DURATION
++ void apply(Paddle,Ball)
++ String getBuffName()
++ int getDurationSeconds()
++ boolean isBuff()
+}
+
+
+class uet.ltnc.arkanoidgame.entities.brick.BrickGrid {
+- List<Brick> bricks
+- {static} double BRICK_WIDTH
+- {static} double BRICK_HEIGHT
+- {static} double GRID_OFFSET_X
+- {static} double GRID_OFFSET_Y
+- void updateMovingBricks()
++ void loadFrom(String)
++ void render(GraphicsContext)
++ void update()
++ boolean isLevelComplete()
++ List<Brick> getBricks()
++ int getActiveBrickCount()
++ List<GameState.BrickData> getBricksStateForSave()
++ void restoreBricksState(List<GameState.BrickData>)
+}
+
+
+class uet.ltnc.arkanoidgame.entities.brick.BrickPowerup {
+- {static} String IMAGE_PATH
+- {static} double DROP_CHANCE
++ Item getPowerup()
+# Color getFallbackColor()
+}
+
+
+class uet.ltnc.arkanoidgame.GamePanel {
+- {static} int CANVAS_WIDTH
+- {static} int CANVAS_HEIGHT
+- {static} int SCENE_WIDTH
+- {static} int SCENE_HEIGHT
+- {static} int INITIAL_LIVES
+- {static} int MAX_LIVES
+- {static} long NANOS_PER_SECOND
+- {static} int PADDLE_X
+- {static} int PADDLE_Y
+- {static} int PADDLE_WIDTH
+- {static} int PADDLE_HEIGHT
+- {static} int BALL_X
+- {static} int BALL_Y
+- {static} int BALL_RADIUS
+- {static} String BACKGROUND_ASSET_PATH
+- {static} String INITIAL_MAP_PATH
+- {static} String GOLD_COLOR
+- {static} String DEFAULT_PLAYER_NAME
+- {static} int MAX_PLAYER_NAME_LENGTH
+- {static} boolean DEBUG_SCORE
+- Stage stage
+- MapManager mapManager
+- BuffManager buffManager
+- AnimationTimer timer
+- boolean gameRunning
+- boolean gamePaused
+- Paddle paddle
+- Ball ball
+- BrickGrid bricks
+- List<Item> items
++ {static} int playerLives
+- int score
+- String buffText
+- String debuffText
+- int buffTime
+- int debuffTime
+- String playerName
+- long startTime
+- long pausedTime
+- long lastPauseTime
+- int elapsedSeconds
+- int totalPlayedSeconds
+- boolean isResumedGame
+- Canvas canvas
+- GraphicsContext gc
+- Pane rootPane
+- GameStatusPanel statusPanel
+- StackPane pauseOverlay
+- Image gameBackground
+- DropShadow titleGlow
+- Score scoreManager
+- SoundManager soundManager
+- boolean gameEnded
+- {static} String sanitizePlayerName(String)
+- void setupWindowCloseHandler()
+- void saveHighScoreOnExit()
+- Image loadBackgroundImage()
+- DropShadow createTitleGlow()
+- Pane createMainLayout()
+- void initEntities()
+- Paddle createPaddle()
+- Ball createBall()
+- BrickGrid loadBricks()
+- void initInput()
+- void setupKeyboardInput()
+- void handleKeyPress(KeyCode)
+- void setupMouseInput()
+- void handleMouseClick()
++ void startGame()
+- void initializeGameTime()
+- void updateGameTime(long)
+- void calculateTotalPlayedTime()
+- void update()
+- void updateEntities()
+- void handleBrickCollisions()
+- void scoreBrokenBricks(int)
+- void updateItems()
+- boolean isItemOutOfBounds(Item)
+- void applyItem(Item)
+- void checkBallStatus()
+- void handleBallLost()
+- void checkLevelProgression()
+- void advanceToNextLevel()
+- void completeGame()
+- void render()
+- void clearCanvas()
+- void drawBackground()
+- void drawEntities()
+- void updateHUD()
+- void togglePause()
+- void pauseGame()
+- void resumeGame()
+- void showPauseOverlay()
+- StackPane createPauseOverlay()
+- VBox createPauseBox()
+- Label createPauseLabel()
+- Label createInfoLabel()
+- void hidePauseOverlay()
+- void resetForNextLevel()
+- void saveCurrentGameState()
+- void loadGameState()
+- void exitToMenu()
+- void showGameOverScreen()
+- void showGameCompleteScreen()
+- void returnToMenu()
+- void resetGame()
++ {static} void addLives(int)
+}
+
+
+class uet.ltnc.arkanoidgame.entities.item.DeBuff.DeBuff_SmallerBall {
+- {static} String IMAGE_PATH
+- {static} double SIZE_DECREASE
+- {static} double DEBUFF_DURATION
++ void apply(Paddle,Ball)
++ String getBuffName()
++ int getDurationSeconds()
++ boolean isBuff()
+}
+
+
+interface uet.ltnc.arkanoidgame.entities.brick.Movable {
+~ void initMovementRange(BrickGrid)
+~ void update()
+~ void reset()
+}
+
+class uet.ltnc.arkanoidgame.Setting.SettingScreen {
+- {static} String BACKGROUND_IMAGE_PATH
+- {static} double PANEL_WIDTH
+- {static} double CONTENT_PADDING
+- {static} double CONTENT_SPACING
+- {static} double TITLE_MARGIN_TOP
+- {static} double SOUND_PANEL_MARGIN_TOP
+- {static} double THEME_PANEL_MARGIN_TOP
+- {static} double PANEL_MARGIN_LEFT
+- {static} double PANEL_MARGIN_RIGHT
+- {static} double BACK_BTN_MARGIN_BOTTOM
+- {static} double TITLE_FONT_SIZE
+- {static} double TITLE_GLOW_RADIUS
+- {static} double SLIDER_LABEL_FONT_SIZE
+- {static} double PERCENT_LABEL_FONT_SIZE
+- {static} double PERCENT_LABEL_WIDTH
+- {static} double PERCENT_LABEL_TRANSLATE_Y
+- {static} double SLIDER_ROW_SPACING
+- {static} double SLIDER_BOX_SPACING
+- {static} String BACK_NORMAL_STYLE
+- {static} String BACK_HOVER_STYLE
+- {static} String THEME_NORMAL_STYLE
+- {static} String THEME_HOVER_STYLE
+- {static} String ARROW_STYLE
+- {static} String ARROW_HOVER_STYLE
+- Stage stage
+- SoundManager soundManager
+- java.util.List<String> themeNames
+- java.util.List<String> themeDisplayNames
+- int currentThemeIndex
+- Label currentThemeLabel
+- VBox createVolumeSlider(String,double,Consumer<Double>)
+- Label createTitle(String)
+- Button createBackButton()
+- Button createThemeButton(String)
+- void selectPreviousTheme()
+- void selectNextTheme()
+- void updateTheme()
+}
+
+
+class uet.ltnc.arkanoidgame.entities.data.GameSaveManager {
+- {static} String SAVE_FILE
+- {static} String DELIMITER
+- {static} String BRICK_DELIMITER
++ {static} boolean saveGame(GameState)
++ {static} GameState loadGame()
++ {static} boolean hasSavedGame()
++ {static} boolean deleteSave()
+}
+
+
+class uet.ltnc.arkanoidgame.ui.PlayerNameDialog {
+- {static} int MAX_NAME_LENGTH
+}
+
+class uet.ltnc.arkanoidgame.entities.item.Buff.Buff_ExtraLives {
+- {static} String IMAGE_PATH
+- {static} int EXTRA_LIVES
++ void apply(Paddle,Ball)
++ String getBuffName()
++ int getDurationSeconds()
++ boolean isBuff()
+}
+
+
+class uet.ltnc.arkanoidgame.entities.item.DeBuff.DeBuff_FastBall {
+- {static} String IMAGE_PATH
+- {static} double SPEED_INCREASE
+- {static} double DEBUFF_DURATION
++ void apply(Paddle,Ball)
++ String getBuffName()
++ int getDurationSeconds()
++ boolean isBuff()
+}
+
+
+class uet.ltnc.arkanoidgame.ThemeManager {
+- {static} String currentTheme
++ {static} String getCurrentTheme()
++ {static} void setCurrentTheme(String)
++ {static} String getImagePath(String)
+}
+
+
+class uet.ltnc.arkanoidgame.entities.item.DeBuff.DeBuff_ReversePaddle {
+- {static} String IMAGE_PATH
+- {static} int DEBUFF_DURATION
++ void apply(Paddle,Ball)
++ String getBuffName()
++ int getDurationSeconds()
++ boolean isBuff()
+}
+
+
+class uet.ltnc.arkanoidgame.entities.data.HighScore {
+- {static} long serialVersionUID
+- String playerName
+- int score
+- int timeInSeconds
+- String dateTime
+- int levelsCompleted
+- boolean gameCompleted
+- {static} String sanitizeName(String)
++ String getPlayerName()
++ int getScore()
++ int getTimeInSeconds()
++ String getDateTime()
++ int getLevelsCompleted()
++ boolean isGameCompleted()
++ String getFormattedTime()
++ String getFormattedDate()
++ int compareTo(HighScore)
++ String toFileLine()
++ {static} HighScore fromFileLine(String)
+}
+
+
+class uet.ltnc.arkanoidgame.BuffManager {
+- String currentBuffName
+- int buffTimeLeft
+- Timeline buffTimer
+- String currentDebuffName
+- int debuffTimeLeft
+- Timeline debuffTimer
+- Runnable onUpdate
++ void setOnUpdate(Runnable)
++ void activateBuff(String,int)
++ void activateDebuff(String,int)
++ void pauseTimers()
++ void resumeTimers()
++ void stopAllTimers()
+- void notifyUpdate()
++ String getCurrentBuffName()
++ int getBuffTimeLeft()
++ String getCurrentDebuffName()
++ int getDebuffTimeLeft()
+}
+
+
+class uet.ltnc.arkanoidgame.ui.HighScoreNameDialog {
+- {static} int MAX_NAME_LENGTH
+}
+
+class uet.ltnc.arkanoidgame.entities.item.Buff.Buff_SlowerBall {
+- {static} String IMAGE_PATH
+- {static} double SPEED_DECREASE
+- {static} double BUFF_DURATION
++ void apply(Paddle,Ball)
++ String getBuffName()
++ int getDurationSeconds()
++ boolean isBuff()
+}
+
+
+class uet.ltnc.arkanoidgame.entities.brick.BrickFactory {
++ {static} Brick createBrick(int,double,double,double,double)
+}
+
+class uet.ltnc.arkanoidgame.entities.item.Buff.Buff_BiggerBall {
+- {static} String IMAGE_PATH
+- {static} double SIZE_INCREASE
+- {static} double BUFF_DURATION
++ void apply(Paddle,Ball)
++ String getBuffName()
++ int getDurationSeconds()
++ boolean isBuff()
+}
+
+
+class uet.ltnc.arkanoidgame.entities.map.MapManager {
+- String[] levelPaths
+- int currentLevel
++ void loadLevel(BrickGrid)
++ boolean hasNextLevel()
++ void nextLevel(BrickGrid)
++ void resetGame()
++ int getCurrentLevelIndex()
++ String getCurrentMapPath()
++ void loadLevelByIndex(BrickGrid,int)
+}
+
+
+class uet.ltnc.arkanoidgame.entities.item.Buff.Buff_BiggerPaddle {
+- {static} String IMAGE_PATH
+- {static} double SIZE_INCREASE
+- {static} double BUFF_DURATION
++ void apply(Paddle,Ball)
++ String getBuffName()
++ int getDurationSeconds()
++ boolean isBuff()
+}
+
+
+class uet.ltnc.arkanoidgame.GameStatusPanel {
+- {static} int PANEL_WIDTH
+- {static} int PANEL_HEIGHT
+- {static} int BUTTON_WIDTH
+- {static} String GOLD_COLOR
+- {static} String CYAN_COLOR
+- {static} String ORANGE_COLOR
+- {static} String GREEN_COLOR
+- {static} String RED_COLOR
+- {static} String WHITE_COLOR
+- {static} String PAUSE_GRADIENT
+- {static} String PAUSE_HOVER_GRADIENT
+- {static} String RESUME_GRADIENT
+- {static} String EXIT_GRADIENT
+- {static} String EXIT_HOVER_GRADIENT
+- {static} String PAUSE_BORDER
+- {static} String RESUME_BORDER
+- {static} String EXIT_BORDER
+- {static} String ICON_LIVES
+- {static} String ICON_SCORE
+- {static} String ICON_TIME
+- {static} String ICON_BUFF
+- {static} String ICON_DEBUFF
+- VBox hudBox
+- Button pauseButton
+- Button exitButton
+- Label livesValue
+- Label scoreValue
+- Label timeValue
+- Label buffValue
+- Label debuffValue
+- DropShadow titleGlow
+- DropShadow buttonGlow
+- Runnable onPauseToggle
+- Runnable onExitGame
+- DropShadow createTitleGlow()
+- DropShadow createButtonGlow()
+- Button createPauseButton()
+- Button createExitButton()
+- void setupButtonInteractions(Button)
+- void setupExitButtonInteractions(Button)
+- void handleButtonHover(Button,boolean)
+- void applyPauseButtonStyle(Button,boolean,boolean)
+- void applyExitButtonStyle(Button,boolean)
+- VBox createHUD()
+- String createHUDStyle()
+- Label createTitle()
+- Rectangle createDecorativeLine()
+- Separator createSeparator()
+- VBox createStatBox(String,Label,String,String)
+- String createStatBoxStyle()
+- HBox createStatHeader(String,String,String)
+- VBox createEffectBox(String,Label,String,String)
+- HBox createEffectHeader(String,String,String)
+- Label createIconLabel(String,String,int)
+- Label createTextLabel(String,String,int,double)
+- void configureValueLabel(Label,String,int)
+- void configureValueLabel(Label,String,int,double)
+- Region createSpacer(double)
++ void updateLives(int)
++ void updateScore(int)
++ void updateTime(int)
++ void updateBuff(String,int)
++ void updateDebuff(String,int)
+- String formatEffectText(String,int)
++ void updateAll(int,int,int,String,int,String,int)
++ void setPauseButtonState(boolean)
+- void applyResumeButtonStyle()
++ void setOnPauseToggle(Runnable)
++ void setOnExitGame(Runnable)
++ VBox getHudBox()
+}
+
+
+class uet.ltnc.arkanoidgame.entities.data.HighScoreManager {
+- {static} String HIGH_SCORE_FILE
+- {static} int MAX_HIGH_SCORES
++ {static} void saveHighScore(String,int,int,int,boolean)
++ {static} void saveHighScore(int,int,int,boolean)
++ {static} int saveHighScoreAndGetRank(String,int,int,int,boolean)
++ {static} List<HighScore> loadHighScores()
+- {static} void saveToFile(List<HighScore>)
++ {static} void clearHighScores()
++ {static} boolean isHighScore(int)
++ {static} int getRank(int)
+}
+
+
+class uet.ltnc.arkanoidgame.GameCompleteScreen {
+- {static} String BG_IMAGE_PATH
+- int finalScore
+- int totalTime
+- Runnable onBackToMenu
+- void setupUI()
+- Label createVictoryTitle()
+- Rectangle createDecorativeLine()
+- VBox createScoreBox()
+- VBox createTimeBox()
+- Button createBackButton()
+- void playAnimations(Label,VBox,VBox,Button)
+}
+
+
+class uet.ltnc.arkanoidgame.entities.brick.BrickMedium {
+# Color getFallbackColor()
+}
+
+class uet.ltnc.arkanoidgame.Setting.SettingManager {
+- {static} String CONFIG_FILE_NAME
+- {static} String CONFIG_FILE_PATH
++ {static} void loadSettings(SoundManager)
++ {static} void saveSettings(SoundManager)
+}
+
+
+
+
+javafx.scene.layout.StackPane <|-- uet.ltnc.arkanoidgame.entities.menu.MainMenu
+javafx.scene.layout.StackPane <|-- uet.ltnc.arkanoidgame.GameOverScreen
+uet.ltnc.arkanoidgame.entities.brick.Movable <|.. uet.ltnc.arkanoidgame.entities.brick.BrickMove
+uet.ltnc.arkanoidgame.entities.brick.Brick <|-- uet.ltnc.arkanoidgame.entities.brick.BrickMove
+uet.ltnc.arkanoidgame.entities.data.GameState +.. uet.ltnc.arkanoidgame.entities.data.GameState$BrickData
+uet.ltnc.arkanoidgame.entities.brick.Brick <|-- uet.ltnc.arkanoidgame.entities.brick.BrickStrong
+uet.ltnc.arkanoidgame.entities.brick.Brick <|-- uet.ltnc.arkanoidgame.entities.brick.BrickWeak
+uet.ltnc.arkanoidgame.StackPane <|-- uet.ltnc.arkanoidgame.HighScoreScreen
+uet.ltnc.arkanoidgame.entities.item.Item <|-- uet.ltnc.arkanoidgame.entities.item.Buff.Buff_ExplosiveBall
+javafx.application.Application <|-- uet.ltnc.arkanoidgame.ArkanoidGame
+uet.ltnc.arkanoidgame.entities.brick.Brick <|-- uet.ltnc.arkanoidgame.entities.brick.BrickUnbreakable
+uet.ltnc.arkanoidgame.entities.item.Item <|-- uet.ltnc.arkanoidgame.entities.item.DeBuff.DeBuff_SmallerPaddle
+uet.ltnc.arkanoidgame.entities.brick.Brick <|-- uet.ltnc.arkanoidgame.entities.brick.BrickPowerup
+uet.ltnc.arkanoidgame.entities.item.Item <|-- uet.ltnc.arkanoidgame.entities.item.DeBuff.DeBuff_SmallerBall
+javafx.scene.layout.StackPane <|-- uet.ltnc.arkanoidgame.Setting.SettingScreen
+javafx.scene.layout.StackPane <|-- uet.ltnc.arkanoidgame.ui.PlayerNameDialog
+uet.ltnc.arkanoidgame.entities.item.Item <|-- uet.ltnc.arkanoidgame.entities.item.Buff.Buff_ExtraLives
+uet.ltnc.arkanoidgame.entities.item.Item <|-- uet.ltnc.arkanoidgame.entities.item.DeBuff.DeBuff_FastBall
+uet.ltnc.arkanoidgame.entities.item.Item <|-- uet.ltnc.arkanoidgame.entities.item.DeBuff.DeBuff_ReversePaddle
+java.io.Serializable <|.. uet.ltnc.arkanoidgame.entities.data.HighScore
+uet.ltnc.arkanoidgame.entities.data.Comparable <|.. uet.ltnc.arkanoidgame.entities.data.HighScore
+javafx.scene.layout.StackPane <|-- uet.ltnc.arkanoidgame.ui.HighScoreNameDialog
+uet.ltnc.arkanoidgame.entities.item.Item <|-- uet.ltnc.arkanoidgame.entities.item.Buff.Buff_SlowerBall
+uet.ltnc.arkanoidgame.entities.item.Item <|-- uet.ltnc.arkanoidgame.entities.item.Buff.Buff_BiggerBall
+uet.ltnc.arkanoidgame.entities.item.Item <|-- uet.ltnc.arkanoidgame.entities.item.Buff.Buff_BiggerPaddle
+javafx.scene.layout.StackPane <|-- uet.ltnc.arkanoidgame.GameCompleteScreen
+uet.ltnc.arkanoidgame.entities.brick.Brick <|-- uet.ltnc.arkanoidgame.entities.brick.BrickMedium
+@enduml

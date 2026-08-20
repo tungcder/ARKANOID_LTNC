@@ -11,10 +11,10 @@
 - **Nhóm sinh viên thực hiện**:
 
 | STT | Họ và Tên | Mã Sinh Viên | Email | Vai trò trong nhóm |
-| :---: | :--- | :---: | :--- | :--- |
-| 1 | **Đào Ngọc Duy** | **24022637** | 24022637@vnu.edu.vn | Nhóm trưởng |
-| 2 | **Triệu Tuấn Thành** | **24020310** | 24020310@vnu.edu.vn | Thành viên |
-| 3 | **Hoàng Thanh Tùng** | **24020351** | 24020351@vnu.edu.vn | Thành viên |
+| :---: | :--- | :---: | :--- |:-------------------|
+| 1 | **Đào Ngọc Duy** | **24022637** | 24022637@vnu.edu.vn | Thành viên         |
+| 2 | **Triệu Tuấn Thành** | **24020310** | 24020310@vnu.edu.vn | Nhóm trưởng        |
+| 3 | **Hoàng Thanh Tùng** | **24020351** | 24020351@vnu.edu.vn | Thành viên         |
 
 ---
 
@@ -30,7 +30,7 @@
 
 ## 3. CHI TIẾT ĐÓNG GÓP KỸ THUẬT CỦA TỪNG THÀNH VIÊN
 
-### 3.1. Đào Ngọc Duy (MSV: 24022637) - Nhóm trưởng
+### 3.1. Đào Ngọc Duy (MSV: 24022637) - Thành viên
 - **Kiến trúc Game Loop & Điều phối (`GamePanel.java`, `ArkanoidGame.java`)**:
   - Xây dựng vòng lặp chính của trò chơi dựa trên `javafx.animation.AnimationTimer` đạt tần số quét ổn định 60 FPS.
   - Quản lý đồng bộ vòng đời thực thể (Update -> Collision Check -> Render -> HUD Refresh).
@@ -45,7 +45,7 @@
 
 ---
 
-### 3.2. Triệu Tuấn Thành (MSV: 24020310) - Thành viên
+### 3.2. Triệu Tuấn Thành (MSV: 24020310) - Nhóm trưởng
 - **Hệ thống Gạch & Mẫu thiết kế Factory (`entities/brick/*`)**:
   - Thiết kế cấu trúc phân cấp kế thừa từ lớp cha trừu tượng `Brick.java`.
   - Triển khai mẫu thiết kế **Factory Method** trong `BrickFactory.java` giúp ánh xạ ký tự bản đồ CSV thành các đối tượng gạch tương ứng một cách linh hoạt, dễ mở rộng.
@@ -93,7 +93,7 @@
 
 <br>
 <div align="right">
-  <i>Hà Nội, ngày 20 tháng 08 năm 2026</i><br><br>
+  <i>Hà Nội, ngày 19 tháng 08 năm 2026</i><br><br>
   <b>ĐẠI DIỆN NHÓM SINH VIÊN</b><br><br><br>
   <b>Đào Ngọc Duy</b> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <b>Triệu Tuấn Thành</b> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <b>Hoàng Thanh Tùng</b>
 </div>

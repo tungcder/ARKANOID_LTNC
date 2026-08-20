@@ -197,11 +197,11 @@ Khi phá vỡ các viên gạch đặc biệt (`BrickPowerup`), vật phẩm s�
 
 Dự án được thực hiện bởi nhóm sinh viên **Trường Đại học Công nghệ - ĐHQGHN (UET)**:
 
-| STT | Họ và Tên | Mã Sinh Viên | Vai trò & Trách nhiệm chính | Tỉ lệ đóng góp |
-| :---: | :--- | :---: | :--- | :---: |
-| 1 | **Đào Ngọc Duy** | **24022637** | **Nhóm trưởng**: Kiến trúc Core Engine, Vật lý chuyển động & va chạm (Sub-stepping, Paddle physics), Hệ thống High Score (nhập tên & lưu trữ), Lưu/Tải trạng thái Game (Save/Load), Tích hợp âm thanh. | **33.3%** |
-| 2 | **Triệu Tuấn Thành** | **24020310** | **Thành viên**: Thiết kế Hệ thống Gạch & Factory Pattern (`BrickFactory`, `BrickGrid`, `BrickMove`), Xây dựng Hệ thống Vật phẩm Buff & Debuff (`BuffManager`, 9 Items), Module nạp màn chơi từ CSV (`MapLoader`, `MapManager`). | **33.3%** |
-| 3 | **Hoàng Thanh Tùng** | **24020351** | **Thành viên**: Thiết kế Giao diện người dùng & Điều hướng màn hình (`MainMenu`, `GameOverScreen`, `GameCompleteScreen`, `SettingScreen`), Hệ thống Chủ đề (3 Themes), Quản lý Âm thanh/Cài đặt, Demo & Tài liệu hóa. | **33.4%** |
+| STT | Họ và Tên | Mã Sinh Viên | Vai trò & Trách nhiệm chính                                                                                                                                                                                                      | Tỉ lệ đóng góp |
+| :---: | :--- | :---: |:---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------| :---: |
+| 1 | **Đào Ngọc Duy** | **24022637** | **Thành viên**: Kiến trúc Core Engine, Vật lý chuyển động & va chạm (Sub-stepping, Paddle physics), Hệ thống High Score (nhập tên & lưu trữ), Lưu/Tải trạng thái Game (Save/Load), Tích hợp âm thanh.                            | **33.3%** |
+| 2 | **Triệu Tuấn Thành** | **24020310** | **Nhóm trưởng**: Thiết kế Hệ thống Gạch & Factory Pattern (`BrickFactory`, `BrickGrid`, `BrickMove`), Xây dựng Hệ thống Vật phẩm Buff & Debuff (`BuffManager`, 9 Items), Module nạp màn chơi từ CSV (`MapLoader`, `MapManager`). | **33.3%** |
+| 3 | **Hoàng Thanh Tùng** | **24020351** | **Thành viên**: Thiết kế Giao diện người dùng & Điều hướng màn hình (`MainMenu`, `GameOverScreen`, `GameCompleteScreen`, `SettingScreen`), Hệ thống Chủ đề (3 Themes), Quản lý Âm thanh/Cài đặt, Demo & Tài liệu hóa.            | **33.4%** |
 
 > 📄 *Xem báo cáo chi tiết nhiệm vụ và lịch sử đóng góp tại: [**BAO_CAO_PHAN_CONG.md**](BAO_CAO_PHAN_CONG.md)*.
 
